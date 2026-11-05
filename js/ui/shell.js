@@ -106,6 +106,7 @@
     sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
     globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
     pen: '<path d="M4 20h4L19 9l-4-4L4 16z"/>',
+    grid: '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
     film: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 9h4M3 15h4M17 9h4M17 15h4"/>',
     gift: '<rect x="3" y="9" width="18" height="12" rx="1"/><path d="M3 13h18M12 9v12M12 9c-2-4-6-4-6-1s6 1 6 1 6 2 6-1-4-3-6 1"/>'
   };
@@ -172,6 +173,9 @@
     wrap.close = close;
     return wrap;
   };
+  IT.closeModals = function () {
+    Array.prototype.forEach.call(document.querySelectorAll(".modal-back"), function (w) { if (w.close) w.close(); else w.remove(); });
+  };
   IT.confirm = function (text, okLabel, onOk, danger) {
     var m = IT.modal('<h3 class="m-title">' + esc(text) + '</h3><div class="row gap end mt"><button class="btn ghost" data-close>' + IT.t("cancel") + '</button><button class="btn ' + (danger ? "danger" : "primary") + '" data-ok>' + esc(okLabel) + "</button></div>");
     m.querySelector("[data-ok]").onclick = function () { m.close(); onOk(); };
@@ -221,6 +225,7 @@
   IT.route = "path";
   IT.go = function (r) {
     if (ROUTES.indexOf(r) < 0) r = "path";
+    IT.closeModals();
     if (location.hash !== "#" + r) { try { history.replaceState(null, "", "#" + r); } catch (e) { location.hash = r; } }
     IT.route = r; IT.render();
   };
@@ -252,8 +257,14 @@
       '<div class="side-foot"><div class="lvl-pill">' + IT.icon("star") + " " + IT.t("level") + " " + lv.level + '<div class="bar"><i style="width:' + lv.pct + '%"></i></div></div></div>';
     top.innerHTML = '<div class="brand sm" data-go="path"><span class="logo">' + logoSvg() + "</span><b>¡Vamos!</b></div>" +
       '<div class="top-stats"><span class="chip flame' + (streak ? "" : " off") + '" title="' + IT.t("streak") + '">' + IT.icon("flame") + streak + '</span><span class="chip xp" title="XP">' + IT.icon("bolt") + st.xp + '</span><button class="chip ghost" data-go="stats" aria-label="' + IT.t("navStats") + '">' + IT.icon("stats") + "</button></div>";
-    var mob = NAV.filter(function (n) { return n[0] !== "stats"; });
-    bot.innerHTML = mob.map(function (n) { var sk = IT.t(n[2] + "Short"); return '<a href="#' + n[0] + '" data-go="' + n[0] + '" class="' + (IT.route === n[0] ? "on" : "") + '">' + IT.icon(n[1]) + "<span>" + (sk !== n[2] + "Short" ? sk : IT.t(n[2])) + "</span></a>"; }).join("");
+    var MAIN = ["path", "practice", "dialogues", "dictionary"], MORE = NAV.filter(function (n) { return MAIN.indexOf(n[0]) < 0; });
+    var lbl = function (n) { var sk = IT.t(n[2] + "Short"); return sk !== n[2] + "Short" ? sk : IT.t(n[2]); };
+    bot.innerHTML = NAV.filter(function (n) { return MAIN.indexOf(n[0]) >= 0; }).map(function (n) { return '<a href="#' + n[0] + '" data-go="' + n[0] + '" class="' + (IT.route === n[0] ? "on" : "") + '">' + IT.icon(n[1]) + "<span>" + lbl(n) + "</span></a>"; }).join("") +
+      '<button class="' + (MAIN.indexOf(IT.route) < 0 ? "on" : "") + '" data-more>' + IT.icon("grid") + "<span>" + (MAIN.indexOf(IT.route) < 0 ? lbl(NAV.find(function (n) { return n[0] === IT.route; }) || NAV[0]) : IT.t("more")) + "</span></button>";
+    bot.querySelector("[data-more]").onclick = function () {
+      var m = IT.modal('<h3 class="m-title">' + IT.t("more") + '</h3><div class="more-grid">' + MORE.map(function (n) { return '<button class="more-tile' + (IT.route === n[0] ? " on" : "") + '" data-mgo="' + n[0] + '">' + IT.icon(n[1]) + "<span>" + IT.t(n[2]) + "</span></button>"; }).join("") + "</div>");
+      m.querySelectorAll("[data-mgo]").forEach(function (b) { b.onclick = function () { m.close(); IT.go(b.getAttribute("data-mgo")); }; });
+    };
   };
   function logoSvg() { return '<img src="icons/icon.svg" alt="" width="40" height="40">'; }
 

@@ -67,7 +67,7 @@
       IT.renderTranslator(main.querySelector(".tr-box"));
       return;
     }
-    main.innerHTML = '<div class="tutor">' + tabs + '<div class="tutor-head card">' + '<span class="avatar big" style="background:#7a5c8a">PE</span><div class="grow"><h1>Profesora Elena</h1><p class="muted sm">' + t("tutorSub") + '</p><div class="ai-badge xs muted">' + t("aiChecking") + '</div></div><button class="btn ghost sm" data-clear>' + IT.icon("refresh") + " " + t("newChat") + '</button></div>' +
+    main.innerHTML = '<div class="tutor">' + tabs + '<div class="tutor-head card">' + '<span class="avatar big" style="background:#7a5c8a">PE</span><div class="grow"><h1>Profesora Elena</h1><p class="muted sm">' + t("tutorSub") + '</p><div class="ai-badge xs muted">' + t("aiChecking") + '</div></div><button class="btn ghost sm" data-clear title="' + t("newChat") + '" aria-label="' + t("newChat") + '">' + IT.icon("refresh") + ' <span class="lbl">' + t("newChat") + '</span></button></div>' +
       '<div class="tutor-chat card"><div class="chat"></div></div>' +
       '<div class="quick chips">' + [["q1", t("tq1")], ["q2", t("tq2")], ["q3", t("tq3")], ["q4", t("tq4")], ["q5", t("tq5")]].map(function (q) { return '<button class="chip" data-q="' + q[0] + '">' + esc(q[1]) + "</button>"; }).join("") + '<button class="chip gold" data-gen>' + IT.icon("sparkles") + " " + t("genExercises") + "</button></div>" +
       '<div class="composer card"><div class="comp-row"><textarea rows="2" placeholder="' + t("tutorPh") + '"></textarea><button class="btn primary send" data-send>' + IT.icon("send") + "</button></div></div></div>";

@@ -107,6 +107,7 @@
           '</div><button class="btn primary big mt" data-fin>' + IT.icon("play") + " ¡Vamos!</button>";
       }
       box.classList.remove("in"); void box.offsetWidth; box.classList.add("in");
+      var pb = box.closest(".pl-body"); if (pb) pb.scrollTop = 0;
     }
     function onClick(e) {
       var u = e.target.closest('[data-set="ui"] [data-v]');

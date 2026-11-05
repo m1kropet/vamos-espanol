@@ -145,7 +145,13 @@
       '<div class="cues">' + cur.cues.map(function (c, i) {
         return '<div class="cue" data-i="' + i + '"><span class="ct">' + (c.s != null ? fmt(c.s) : i + 1) + '</span><div class="cx">' + c.t.split(/(\s+)/).map(function (w) { return /\S/.test(w) ? '<span class="cw">' + esc(w) + "</span>" : w; }).join("") + '</div><div class="cb"><button class="icon-btn sm" data-play title="' + t("playLine") + '">' + IT.icon("play") + '</button><button class="icon-btn sm" data-slowp title="' + t("slowly") + '">' + IT.icon("turtle") + '</button><button class="icon-btn sm" data-rec title="' + t("repeatAfter") + '">' + IT.icon("mic") + '</button><button class="icon-btn sm" data-an title="' + t("analyzeLine") + '">' + IT.icon("search") + "</button></div></div>";
       }).join("") + '</div></div><div class="media-right"><div class="card an-panel"><div class="an-empty muted sm">' + IT.icon("search") + " " + t("anHint") + "</div></div></div></div>";
-    var vid = ws.querySelector(".vid"), panel = ws.querySelector(".an-panel");
+    var vid = ws.querySelector(".vid"), deskPanel = ws.querySelector(".an-panel");
+    var narrow = function () { return window.matchMedia && matchMedia("(max-width: 1000px)").matches; };
+    var getPanel = function () {
+      if (!narrow()) return deskPanel;
+      var m = IT.modal('<div class="an-panel sheet-panel"></div>', { wide: true });
+      return m.querySelector(".an-panel");
+    };
     if (vid) {
       vid.playbackRate = cur.rate || 1;
       vid.ontimeupdate = function () {
@@ -183,14 +189,14 @@
       var row = e.target.closest(".cue"); if (!row) return; var i = +row.getAttribute("data-i");
       if (e.target.closest("[data-play]")) return playLine(i, false);
       if (e.target.closest("[data-slowp]")) return playLine(i, true);
-      if (e.target.closest("[data-an]")) { highlight(i); return analyzeLine(i, panel); }
+      if (e.target.closest("[data-an]")) { highlight(i); return analyzeLine(i, getPanel()); }
       if (e.target.closest("[data-rec]")) return shadow(i, row);
       var w = e.target.closest(".cw");
-      if (w) { highlight(i); return wordInfo(w.textContent, cur.cues[i].t, panel); }
+      if (w) { highlight(i); return wordInfo(w.textContent, cur.cues[i].t, getPanel()); }
       playLine(i, false);
     };
-    ws.querySelector("[data-dialect]").onclick = function () { dialectReport(panel); };
-    ws.querySelector("[data-analyze]").onclick = function () { analyzeScene(panel); };
+    ws.querySelector("[data-dialect]").onclick = function () { dialectReport(getPanel()); };
+    ws.querySelector("[data-analyze]").onclick = function () { analyzeScene(getPanel()); };
     ws.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
@@ -279,7 +285,7 @@
     }
     html += '<button class="btn ghost sm mt-s" data-open-dialects>' + IT.icon("globe") + " " + t("dialectGuide") + "</button>";
     panel.innerHTML = html;
-    panel.querySelector("[data-open-dialects]").onclick = function () { IT.openDialects(res[0] && res[0].d.id); };
+    panel.querySelector("[data-open-dialects]").onclick = function () { var mb = panel.closest(".modal-back"); if (mb && mb.close) mb.close(); IT.openDialects(res[0] && res[0].d.id); };
   }
 
   /* Полный разбор сцены ИИ */
@@ -297,7 +303,7 @@
           (r.grammar && r.grammar.length ? '<div class="an-sec"><h4>' + t("grammar") + "</h4>" + list(r.grammar, function (g) { return "<li>" + esc(g) + "</li>"; }) + "</div>" : "") +
           (r.practice ? '<p class="tip sm">' + IT.icon("mic") + "<span>" + esc(r.practice) + "</span></p>" : "");
         bindAdd(panel);
-        panel.querySelectorAll("[data-goline]").forEach(function (b) { b.onclick = function () { var row = document.querySelector('.cue[data-i="' + b.getAttribute("data-goline") + '"]'); if (row) { row.scrollIntoView({ block: "center", behavior: "smooth" }); row.classList.add("flash-row"); setTimeout(function () { row.classList.remove("flash-row"); }, 1200); } }; });
+        panel.querySelectorAll("[data-goline]").forEach(function (b) { b.onclick = function () { var mb = panel.closest(".modal-back"); if (mb && mb.close) mb.close(); var row = document.querySelector('.cue[data-i="' + b.getAttribute("data-goline") + '"]'); if (row) { row.scrollIntoView({ block: "center", behavior: "smooth" }); row.classList.add("flash-row"); setTimeout(function () { row.classList.remove("flash-row"); }, 1200); } }; });
         IT.addXp(5, "media");
       }).catch(function (e) {
         dialectReport(panel);

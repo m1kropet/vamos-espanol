@@ -1,7 +1,7 @@
 /* Новые строки (видео, диалекты, переводчик) и испанский интерфейс */
 (function (IT) {
   Object.assign(IT.I18N.ru, {
-    navMedia: "Видео", navMediaShort: "Видео", navPracticeShort: "Практика", navProfileShort: "Профиль",
+    more: "Ещё", navMedia: "Видео", navMediaShort: "Видео", navPracticeShort: "Практика", navProfileShort: "Профиль",
     mediaSub: "Разбирайте сцены из фильмов, сериалов и роликов: повторяйте реплики, замедляйте их, узнавайте диалект и сленг.",
     mediaLoad: "Загрузить сцену", chooseVideo: "Выбрать видео или аудио", videoLoaded: "Видео загружено", videoOptional: "Необязательно: можно работать только с текстом.",
     chooseSubs: "Выбрать субтитры (.srt, .vtt, .txt)", pasteSubs: "…или вставьте сюда субтитры или текст сцены (каждая реплика с новой строки)", openScene: "Открыть сцену",
@@ -24,7 +24,7 @@
     vocabCompare: "Одно и то же — разными словами", regionalVoiceOn: "Примеры звучат региональным голосом", regionalVoiceOff: "Голоса {v} нет в системе — примеры прозвучат другим испанским голосом.",
     features: "Особенности", samplePhrases: "Как это звучит", localWords: "Местные слова", meaning: "Значение", inSpain: "В Испании", askAboutDialect: "Спросить преподавателя",
     quizScore: "Вы угадали {s} из 10 вариантов.", whereSaid: "Где так скажут?",
-    tabTutor: "Преподаватель", tabTranslator: "Переводчик со сверкой", trAuto: "Авто", trVariant: "Вариант:", neutral: "Нейтральный",
+    tabTutor: "Преподаватель", tabTranslator: "Переводчик", trAuto: "Авто", trVariant: "Вариант:", neutral: "Нейтральный",
     trPh: "Введите фразу на русском или испанском…", trGo: "Перевести и сверить", trNote: "Ctrl+Enter — перевести", translating: "Перевожу и сверяю…",
     trResult: "Перевод", confidence: "уверенность", backTr: "Обратный перевод:", backTrNote: "Обратный перевод показывает, не потерялся ли смысл. Процент — совпадение с исходной фразой по словам.",
     alignTitle: "Сопоставление слов", alignSub: "✓ совпадает со словарём: {ok} · ≠ расходится: {diff}", aiTr: "Перевод ИИ", courseDict: "Словарь курса",
@@ -39,7 +39,7 @@
   });
 
   IT.I18N.es = {
-    tagline: "español desde cero", navPath: "Ruta", navPractice: "Práctica", navDialogues: "Diálogos", navDict: "Diccionario", navTutor: "Profesora", navStats: "Estadísticas", navProfile: "Perfil",
+    more: "Más", tagline: "español desde cero", navPath: "Ruta", navPractice: "Práctica", navDialogues: "Diálogos", navDict: "Diccionario", navTutor: "Profesora", navStats: "Estadísticas", navProfile: "Perfil",
     navTutorShort: "Profe", navDictShort: "Palabras", navMedia: "Vídeo", navMediaShort: "Vídeo", navPracticeShort: "Práctica", navDialoguesShort: "Diálogos", navProfileShort: "Perfil",
     level: "Nivel", streak: "Racha", days: "días", today: "hoy", min: "min", minutes: "Minutos", minShort: "min", hShort: "h", dShort: "d",
     heroTitle: "Tu viaje por el mundo hispano", yourLevel: "Tu nivel:", lessonsShort: "lecciones", resumeLesson: "Seguir la lección", step: "paso", continue: "Continuar", startLearning: "Empezar a aprender", startTest: "Empezar el examen", allDone: "Has terminado todas las lecciones disponibles: repasa palabras y practica en los diálogos.",
@@ -96,7 +96,7 @@
     dialectGuide: "Guía de dialectos", sceneAnalysis: "Análisis de la escena", listenFor: "Qué escuchar", grammar: "Gramática", offlineDialect: "Abajo, la detección por rasgos.",
     dialectsTitle: "Variantes del español", dialectQuiz: "Adivina el dialecto", dialectsIntro: "El español se habla en más de 20 países: la gramática es común, pero la pronunciación y el vocabulario cambian.", voicesAvail: "Voces regionales en tu sistema:", none: "ninguna", voicesNote: "Si falta una voz, se usará otra voz en español.",
     vocabCompare: "Lo mismo con otras palabras", regionalVoiceOn: "Los ejemplos suenan con voz regional", regionalVoiceOff: "No hay voz {v} en el sistema.", features: "Rasgos", samplePhrases: "Cómo suena", localWords: "Palabras locales", meaning: "Significado", inSpain: "En España", askAboutDialect: "Preguntar a la profesora", quizScore: "Has acertado {s} de 10.", whereSaid: "¿Dónde se dice así?",
-    tabTutor: "Profesora", tabTranslator: "Traductor con verificación", trAuto: "Auto", trVariant: "Variante:", neutral: "Neutra", trPh: "Escribe una frase en ruso o en español…", trGo: "Traducir y verificar", trNote: "Ctrl+Enter — traducir", translating: "Traduciendo y verificando…",
+    tabTutor: "Profesora", tabTranslator: "Traductor", trAuto: "Auto", trVariant: "Variante:", neutral: "Neutra", trPh: "Escribe una frase en ruso o en español…", trGo: "Traducir y verificar", trNote: "Ctrl+Enter — traducir", translating: "Traduciendo y verificando…",
     trResult: "Traducción", confidence: "confianza", backTr: "Traducción inversa:", backTrNote: "Muestra si se ha perdido el sentido. El porcentaje es la coincidencia con la frase original.", alignTitle: "Correspondencia de palabras", alignSub: "✓ coincide con el diccionario: {ok} · ≠ difiere: {diff}", aiTr: "Traducción IA", courseDict: "Diccionario del curso",
     diffHint: "La IA y el diccionario difieren", dictOnly: "solo diccionario", phrases: "Expresiones", alternatives: "Otras traducciones", regionalVariants: "En otros países", pitfalls: "Dónde es fácil equivocarse", trOffline: "Sin IA solo está disponible la correspondencia con el diccionario:", checking: "Verificando…",
     vOk: "Traducción exacta", vWrong: "Traducción incorrecta", vImprecise: "Traducción imprecisa", meanings: "Significados", applyTr: "Aceptar", trApplied: "Traducción actualizada", checkDict: "Verificar diccionario", checkDictSub: "La IA revisará {n} palabras y propondrá correcciones.", dictAllOk: "Todas las traducciones son correctas.", applySelected: "Aceptar las marcadas", refined: "verificada", checkTr: "Verificar traducción",
