@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e57a45"/>
+      <stop offset="1" stop-color="#b23f27"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffe29a"/>
+      <stop offset="1" stop-color="#ffbf47"/>
+    </radialGradient>
+    <linearGradient id="arch" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fffaf0"/>
+      <stop offset="1" stop-color="#f6e6cc"/>
+    </linearGradient>
+    <clipPath id="clip"><rect width="512" height="512" rx="112"/></clipPath>
+  </defs>
+  <g clip-path="url(#clip)">
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <!-- солнце -->
+  <circle cx="372" cy="150" r="70" fill="url(#sun)" opacity=".95"/>
+  <!-- холмы -->
+  <path d="M0 380 Q130 330 256 368 T512 352 V512 H0Z" fill="#8f2f1d" opacity=".35"/>
+  <!-- мавританская подковообразная арка -->
+  <path d="M136 420 V260 C136 150 206 96 256 96 C306 96 376 150 376 260 V420 Z" fill="url(#arch)"/>
+  <path d="M176 420 V268 C176 196 214 150 256 150 C298 150 336 196 336 268 V420 Z" fill="#c2532f"/>
+  <path d="M176 268 C176 196 214 150 256 150 C298 150 336 196 336 268 C336 300 320 316 304 330 H208 C192 316 176 300 176 268 Z" fill="#a8402a" opacity=".55"/>
+  <!-- буква Ñ -->
+  <text x="256" y="388" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="170" fill="#fff6e6">ñ</text>
+  <!-- ступень -->
+  <rect x="112" y="420" width="288" height="26" rx="13" fill="#fff6e6"/>
+  </g>
+</svg>

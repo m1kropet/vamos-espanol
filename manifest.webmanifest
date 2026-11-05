@@ -1,0 +1,49 @@
+{
+  "name": "¡Vamos! — испанский с нуля",
+  "short_name": "¡Vamos!",
+  "description": "Испанский для русскоговорящих: уроки, диалоги, словарь, видео и диалекты.",
+  "lang": "ru",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f6efe4",
+  "theme_color": "#c2572e",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Повторение слов",
+      "url": "./index.html#practice"
+    },
+    {
+      "name": "Видео",
+      "url": "./index.html#media"
+    },
+    {
+      "name": "Переводчик",
+      "url": "./index.html#tutor"
+    }
+  ]
+}

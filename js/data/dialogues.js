@@ -1,0 +1,203 @@
+/* Интерактивные диалоги.
+ * Шаг: { npc, ru, task, accept:[[варианты группы 1],[группа 2]...], model, opts:[верный, неверный, неверный], gloss:[[выражение, значение]], tip }
+ * Ответ засчитывается, если в нём есть хотя бы один вариант из КАЖДОЙ группы (регистр, ударения и пунктуация не важны).
+ * voice — региональный голос персонажа (es-ES, es-MX, es-AR…), если он есть в системе.
+ */
+IT.dialogues = [
+{
+  id: "conocer", level: "A1", unlock: null, scene: "madrid", voice: "es-ES",
+  t: "Знакомство в языковой школе", ti: "Una nueva amiga",
+  place: "Madrid, escuela de idiomas",
+  char: { name: "Lucía", role: "студентка из Мадрида", color: "#c2572e" },
+  steps: [
+    { npc: "¡Hola! Soy Lucía. ¿Y tú, cómo te llamas?", ru: "Привет! Я Лусия. А тебя как зовут?", task: "Представьтесь.",
+      accept: [["me llamo", "soy", "mi nombre es"]], model: "Me llamo Ana. ¡Mucho gusto!", opts: ["Me llamo Ana. ¡Mucho gusto!", "Te llamas Ana.", "Eres Ana."],
+      gloss: [["¿Y tú?", "А ты?"]], tip: "Me llamo… или Soy… + имя. Mucho gusto — очень приятно." },
+    { npc: "¡Encantada! ¿De dónde eres?", ru: "Очень приятно! Откуда ты?", task: "Скажите, из какого вы города.",
+      accept: [["soy de", "vengo de", "soy rus", "vivo en"]], model: "Soy de Moscú.", opts: ["Soy de Moscú.", "Soy Moscú.", "Tengo Moscú."],
+      gloss: [["Encantada", "Очень приятно (говорит женщина)"]], tip: "Происхождение: ser + de + город." },
+    { npc: "¡Qué bien! Yo soy de aquí, de Madrid. ¿Por qué estudias español?", ru: "Здорово! Я местная, из Мадрида. Почему ты учишь испанский?", task: "Ответьте, начав с «Porque…».",
+      accept: [["porque", "para"]], model: "Porque me encanta España.", opts: ["Porque me encanta España.", "¿Por qué estudio español?", "Tengo veinte años."],
+      gloss: [["¡Qué bien!", "Как здорово!"], ["de aquí", "отсюда, местная"]], tip: "В ответе — porque (слитно, без знака)." },
+    { npc: "¡Genial! ¿Y cuántos años tienes?", ru: "Отлично! А сколько тебе лет?", task: "Назовите свой возраст (tener + число + años).",
+      accept: [["tengo"], ["años", "anos"]], model: "Tengo veinticinco años.", opts: ["Tengo veinticinco años.", "Soy veinticinco años.", "Tengo veinticinco."],
+      gloss: [["¡Genial!", "Отлично! Круто!"]], tip: "Возраст — с tener." },
+    { npc: "Oye, esta noche vamos a tomar algo. ¿Te vienes?", ru: "Слушай, сегодня вечером мы идём посидеть где-нибудь. Пойдёшь с нами?", task: "Согласитесь с радостью.",
+      accept: [["sí", "vale", "claro", "por supuesto", "genial", "me encantaría"]], model: "¡Sí, claro! ¡Genial!", opts: ["¡Sí, claro! ¡Genial!", "No, soy algo.", "De nada, adiós."],
+      gloss: [["Oye", "Слушай (букв. «услышь»)"], ["tomar algo", "выпить чего-нибудь, посидеть"], ["¿Te vienes?", "Пойдёшь с нами?"], ["vale", "ок (Испания)"]], tip: "Vale — самое испанское «ок»." },
+    { npc: "¡Perfecto! ¡Hasta luego!", ru: "Отлично! До встречи!" }
+  ]
+},
+{
+  id: "tapas", level: "A1", unlock: "a1u2l2", scene: "sevilla", voice: "es-ES",
+  t: "Тапас в Севилье", ti: "En el bar de tapas",
+  place: "Sevilla, bar en Triana",
+  char: { name: "Paco", role: "официант", color: "#8a3b2e" },
+  steps: [
+    { npc: "¡Buenas! ¿Qué os pongo?", ru: "Здравствуйте! Что вам налить?", task: "Закажите пиво (una caña) и воду.",
+      accept: [["caña", "cerveza"], ["agua"]], model: "Una caña y un agua, por favor.", opts: ["Una caña y un agua, por favor.", "Soy una caña.", "Quiero caña, agua tú."],
+      gloss: [["¿Qué os pongo?", "Что вам налить? (os — вам, Испания)"]], tip: "«Un agua» — да, с артиклем un: agua — женская, но на ударное a." },
+    { npc: "Muy bien. ¿Y de comer?", ru: "Хорошо. А поесть?", task: "Закажите порцию картофеля «bravas».",
+      accept: [["bravas", "patatas"]], model: "Una ración de patatas bravas.", opts: ["Una ración de patatas bravas.", "Comer patatas yo.", "Las patatas son bravas."],
+      gloss: [["de comer", "из еды"], ["patatas bravas", "жареный картофель с острым соусом"]], tip: "Ración — большая порция, tapa — маленькая." },
+    { npc: "Las bravas pican un poco, ¿eh?", ru: "Брава немного острые, имейте в виду.", task: "Скажите, что не проблема — вам нравится острое.",
+      accept: [["gusta", "encanta", "no pasa nada", "vale", "perfecto", "bien"]], model: "No pasa nada, me gusta el picante.", opts: ["No pasa nada, me gusta el picante.", "Yo pico mucho.", "Gusto picante."],
+      gloss: [["picar", "быть острым; щипать"], ["¿eh?", "ведь так? (подтверждение)"], ["No pasa nada", "Ничего страшного"]], tip: "Me gusta + существительное в ед. ч." },
+    { npc: "¡Marchando! ¿Algo más?", ru: "Сейчас будет! Что-нибудь ещё?", task: "Скажите, что пока всё, спасибо.",
+      accept: [["nada más", "no", "es todo", "de momento"]], model: "No, de momento nada más, gracias.", opts: ["No, de momento nada más, gracias.", "Sí, algo.", "Más nada tú."],
+      gloss: [["¡Marchando!", "Уже несу! (жаргон официантов)"], ["¿Algo más?", "Что-нибудь ещё?"], ["de momento", "пока что"]], tip: "" },
+    { npc: "(Más tarde) ¿Qué tal todo?", ru: "(Позже) Как вам всё?", task: "Скажите, что всё очень вкусно, и попросите счёт.",
+      accept: [["cuenta", "cuánto", "cobra"]], model: "Todo muy rico. La cuenta, por favor.", opts: ["Todo muy rico. La cuenta, por favor.", "Todo es rico. De nada.", "Rico estoy yo."],
+      gloss: [["¿Qué tal todo?", "Как всё?"], ["¿Nos cobra?", "Рассчитайте нас (вежливо)"], ["rico", "вкусный (о еде)"]], tip: "Попросить счёт: La cuenta, por favor / ¿Cuánto es? / ¿Me cobra?" },
+    { npc: "Son nueve euros con cincuenta. ¡Gracias, y que vaya bien!", ru: "Девять евро пятьдесят. Спасибо, и всего хорошего!" }
+  ]
+},
+{
+  id: "madrid", level: "A1", unlock: "a1u5l2", scene: "plaza", voice: "es-ES",
+  t: "Прогулка по Мадриду: где Прадо?", ti: "Paseo por Madrid",
+  place: "Madrid, Puerta del Sol",
+  char: { name: "Señora Carmen", role: "прохожая", color: "#7a5c8a" },
+  steps: [
+    { npc: "Buenos días. ¿Le puedo ayudar? Parece perdido.", ru: "Добрый день. Могу Вам помочь? Вы, кажется, заблудились.", task: "Вежливо спросите, где музей Прадо.",
+      accept: [["dónde", "donde", "cómo llego", "como llego"], ["prado", "museo"]], model: "Sí, gracias. Perdone, ¿dónde está el Museo del Prado?", opts: ["Sí, gracias. Perdone, ¿dónde está el Museo del Prado?", "Sí, soy el Prado.", "¿Dónde hay el Prado?"],
+      gloss: [["¿Le puedo ayudar?", "Могу Вам помочь?"], ["Parece perdido", "Кажется, Вы заблудились"]], tip: "Известный объект → ¿Dónde está…? (не hay)." },
+    { npc: "Está un poco lejos. Siga todo recto por esta calle y luego gire a la derecha.", ru: "Это немного далеко. Идите прямо по этой улице, потом поверните направо.", task: "Переспросите: «Направо?»",
+      accept: [["derecha"]], model: "¿A la derecha?", opts: ["¿A la derecha?", "¿A la izquierda?", "¿Recto derecha yo?"],
+      gloss: [["Siga todo recto", "Идите прямо"], ["luego", "потом"], ["gire a la derecha", "поверните направо"]], tip: "derecha — направо, izquierda — налево." },
+    { npc: "Sí, a la derecha. Son unos quince minutos a pie.", ru: "Да, направо. Около пятнадцати минут пешком.", task: "Спросите, есть ли рядом хорошее кафе (¿Hay…?).",
+      accept: [["hay", "dónde", "donde"], ["café", "cafe", "cafetería", "bar"]], model: "¿Hay un buen café cerca?", opts: ["¿Hay un buen café cerca?", "¿Está un café cerca?", "¿Soy un café?"],
+      gloss: [["unos quince minutos", "около пятнадцати минут"], ["a pie", "пешком"]], tip: "Неопределённое «какое-нибудь кафе» → hay." },
+    { npc: "Sí, enfrente del museo hay una cafetería muy bonita.", ru: "Да, напротив музея есть очень симпатичное кафе.", task: "Поблагодарите.",
+      accept: [["gracias"]], model: "¡Muchas gracias, señora!", opts: ["¡Muchas gracias, señora!", "De nada, señora.", "Perdón, adiós."],
+      gloss: [["enfrente del museo", "напротив музея"]], tip: "" },
+    { npc: "¡De nada! ¡Que disfrute del museo!", ru: "Не за что! Приятного посещения музея!" }
+  ]
+},
+{
+  id: "mercado", level: "A1", unlock: "a1u6l2", scene: "market", voice: "es-ES",
+  t: "На рынке в Валенсии", ti: "En el mercado",
+  place: "Valencia, Mercado Central",
+  char: { name: "Don Vicente", role: "продавец фруктов", color: "#5d7a3a" },
+  steps: [
+    { npc: "¡Buenos días, guapa! ¿Qué le pongo?", ru: "Доброе утро, красавица! Что Вам дать?", task: "Попросите килограмм апельсинов (un kilo de naranjas).",
+      accept: [["kilo"], ["naranja", "naranjas"]], model: "Un kilo de naranjas, por favor.", opts: ["Un kilo de naranjas, por favor.", "Soy un kilo naranjas.", "Naranjas, ¿cuántos años?"],
+      gloss: [["guapa / guapo", "дружеское обращение на рынке («красавица»)"], ["la naranja", "апельсин"]], tip: "Количество + de + продукт." },
+    { npc: "Son de Valencia, ¡las mejores! ¿Algo más?", ru: "Они из Валенсии — лучшие! Что-нибудь ещё?", task: "Спросите, сколько стоят помидоры (los tomates).",
+      accept: [["cuánto", "cuanto", "a cómo", "a como"], ["tomate", "tomates"]], model: "¿A cuánto están los tomates?", opts: ["¿A cuánto están los tomates?", "¿Cuántos años tienen los tomates?", "¿Los tomates son yo?"],
+      gloss: [["las mejores", "лучшие"], ["¿A cuánto está…?", "почём…? (о меняющейся цене)"]], tip: "На рынке говорят «¿A cuánto están…?» — цена «сегодняшняя», поэтому estar." },
+    { npc: "A dos euros el kilo. Están buenísimos.", ru: "По два евро за килограмм. Очень хорошие.", task: "Возьмите полкило (medio kilo).",
+      accept: [["medio"]], model: "Pues medio kilo de tomates.", opts: ["Pues medio kilo de tomates.", "Media tomates soy.", "Dos kilos años."],
+      gloss: [["buenísimos", "очень хорошие (-ísimo = очень)"], ["pues", "тогда, ну"]], tip: "medio kilo — полкило (без un!)." },
+    { npc: "Muy bien. En total son cuatro euros.", ru: "Хорошо. Всего четыре евро.", task: "Дайте деньги и поблагодарите (Aquí tiene…).",
+      accept: [["aquí tiene", "tenga", "gracias"]], model: "Aquí tiene. ¡Gracias!", opts: ["Aquí tiene. ¡Gracias!", "De nada, por favor.", "Buenas noches."],
+      gloss: [["en total", "итого"], ["Aquí tiene", "Вот, пожалуйста (подавая что-то)"]], tip: "Aquí tiene — стандартная фраза, когда что-то подаёте." },
+    { npc: "¡Gracias a usted! ¡Que tenga un buen día!", ru: "Спасибо Вам! Хорошего дня!" }
+  ]
+},
+{
+  id: "tren", level: "A1", unlock: "a1u7l1", scene: "station", voice: "es-ES",
+  t: "Билет на поезд до Толедо", ti: "En la taquilla",
+  place: "Madrid, estación de Atocha",
+  char: { name: "Elena", role: "кассир", color: "#2f5d7c" },
+  steps: [
+    { npc: "Buenos días, dígame.", ru: "Добрый день, слушаю Вас.", task: "Попросите билет до Толедо.",
+      accept: [["billete", "billetes", "boleto"], ["toledo"]], model: "Buenos días, quería un billete para Toledo.", opts: ["Buenos días, quería un billete para Toledo.", "Soy Toledo billete.", "¿Dónde Toledo?"],
+      gloss: [["dígame", "слушаю Вас (букв. «скажите мне»)"], ["el billete", "билет (в Лат. Америке — el boleto)"]], tip: "Направление билета — para." },
+    { npc: "¿Solo ida o ida y vuelta?", ru: "Только туда или туда и обратно?", task: "Скажите: туда и обратно.",
+      accept: [["vuelta"]], model: "Ida y vuelta, por favor.", opts: ["Ida y vuelta, por favor.", "Solo vuelta ida yo.", "Voy y vengo."],
+      gloss: [["solo ida", "только туда"], ["ida y vuelta", "туда и обратно"]], tip: "" },
+    { npc: "¿Para hoy?", ru: "На сегодня?", task: "Подтвердите: да, на сегодня, на утро.",
+      accept: [["sí", "hoy"]], model: "Sí, para hoy por la mañana.", opts: ["Sí, para hoy por la mañana.", "Sí, ayer.", "Hoy soy yo."], gloss: [["por la mañana", "утром"]], tip: "" },
+    { npc: "Hay un tren a las diez y cuarto y otro a las once. El de las diez tarda treinta y tres minutos.", ru: "Есть поезд в 10:15 и ещё один в 11:00. Тот, что в десять, идёт тридцать три минуты.", task: "Спросите, сколько стоит.",
+      accept: [["cuánto", "cuanto"], ["cuesta", "es", "vale"]], model: "¿Cuánto cuesta?", opts: ["¿Cuánto cuesta?", "¿Cuántos años tiene el tren?", "¿Qué hora es el tren?"],
+      gloss: [["otro", "другой, ещё один"], ["tardar", "занимать (о времени в пути)"]], tip: "" },
+    { npc: "Veintiún euros ida y vuelta.", ru: "Двадцать один евро туда и обратно.", task: "Выберите поезд в 10:15.",
+      accept: [["diez"]], model: "Vale, el de las diez y cuarto.", opts: ["Vale, el de las diez y cuarto.", "Son las diez y cuarto.", "Diez cuarto soy."], gloss: [["vale", "хорошо, ок"], ["el de las diez", "тот, что в десять"]], tip: "" },
+    { npc: "Perfecto. ¿Paga con tarjeta o en efectivo?", ru: "Отлично. Платите картой или наличными?", task: "Скажите: картой.",
+      accept: [["tarjeta"]], model: "Con tarjeta, por favor.", opts: ["Con tarjeta, por favor.", "En tarjeta soy.", "Efectivo tarjeta yo."],
+      gloss: [["en efectivo", "наличными"], ["con tarjeta", "картой"]], tip: "" },
+    { npc: "Aquí tiene. Sale de la vía cinco.", ru: "Вот, пожалуйста. Отправляется с пятого пути.", task: "Переспросите номер пути (¿Qué vía…?).",
+      accept: [["vía", "via", "andén", "anden"]], model: "Perdone, ¿qué vía?", opts: ["Perdone, ¿qué vía?", "¿Vía cinco soy?", "¿Dónde cinco?"],
+      gloss: [["la vía", "путь"], ["el andén", "платформа"]], tip: "" },
+    { npc: "La vía cinco. ¡Buen viaje!", ru: "Пятый путь. Счастливого пути!" }
+  ]
+},
+{
+  id: "hotel", level: "A2", unlock: "a1u8l2", scene: "barcelona", voice: "es-ES",
+  t: "Заселение в отель в Барселоне", ti: "En el hotel",
+  place: "Barcelona, Hotel Mar",
+  char: { name: "Jordi", role: "администратор отеля", color: "#2c6e6a" },
+  steps: [
+    { npc: "Buenas tardes, bienvenidos al Hotel Mar. ¿Tienen reserva?", ru: "Добрый день, добро пожаловать в отель «Мар». У вас есть бронь?", task: "Скажите, что бронь на ваше имя (Tengo una reserva a nombre de…).",
+      accept: [["reserva", "reservado", "reservada", "sí"]], model: "Sí, tengo una reserva a nombre de Smirnova.", opts: ["Sí, tengo una reserva a nombre de Smirnova.", "Sí, soy reserva.", "No, tengo hambre."],
+      gloss: [["bienvenidos", "добро пожаловать (мн. ч.)"], ["a nombre de", "на имя"]], tip: "" },
+    { npc: "Perfecto, una habitación doble para tres noches. ¿Me deja su pasaporte?", ru: "Отлично, двухместный номер на три ночи. Дадите паспорт?", task: "Дайте паспорт.",
+      accept: [["pasaporte", "aquí", "tenga"]], model: "Claro, aquí tiene mi pasaporte.", opts: ["Claro, aquí tiene mi pasaporte.", "Sí, soy pasaporte.", "La mi pasaporte es tú."],
+      gloss: [["la habitación doble", "двухместный номер"], ["¿Me deja…?", "Дадите мне…? (вежливо)"]], tip: "mi pasaporte — без артикля." },
+    { npc: "Gracias. El desayuno es de siete a diez y media.", ru: "Спасибо. Завтрак с семи до половины одиннадцатого.", task: "Спросите, есть ли в номере Wi-Fi.",
+      accept: [["wifi", "wi fi", "internet"]], model: "¿Hay wifi en la habitación?", opts: ["¿Hay wifi en la habitación?", "¿Soy el wifi?", "¿Wifi cuántos años?"],
+      gloss: [["el desayuno", "завтрак"], ["de… a…", "с… до…"]], tip: "¿Hay…? — Есть ли…?" },
+    { npc: "Sí, claro. La contraseña está en la habitación. ¿Necesitan algo más?", ru: "Да, конечно. Пароль в номере. Вам что-нибудь ещё нужно?", task: "Спросите, во сколько нужно освободить номер (¿A qué hora…?).",
+      accept: [["qué hora", "que hora", "cuándo", "cuando"]], model: "¿A qué hora hay que dejar la habitación?", opts: ["¿A qué hora hay que dejar la habitación?", "¿Qué hora es la habitación?", "¿Cuándo eres habitación?"],
+      gloss: [["la contraseña", "пароль"], ["hay que", "нужно (безлично)"], ["dejar la habitación", "освободить номер"]], tip: "" },
+    { npc: "Antes de las doce. Aquí tiene la llave: habitación doscientos catorce, segundo piso.", ru: "До двенадцати. Вот ключ: номер 214, второй этаж.", task: "Спросите, где лифт (el ascensor).",
+      accept: [["dónde", "donde"], ["ascensor"]], model: "Gracias. ¿Dónde está el ascensor?", opts: ["Gracias. ¿Dónde está el ascensor?", "¿Dónde hay el ascensor?", "¿Ascensor soy aquí?"],
+      gloss: [["antes de", "до (раньше чем)"], ["el piso", "этаж; квартира"]], tip: "Конкретный лифт → está." },
+    { npc: "Ahí, a la izquierda.", ru: "Вон там, слева.", task: "Поблагодарите и пожелайте хорошего вечера.",
+      accept: [["gracias", "buenas tardes", "buena tarde", "buenas noches"]], model: "Muchas gracias, ¡buenas tardes!", opts: ["Muchas gracias, ¡buenas tardes!", "De nada, ¡buenos días!", "Perdón, izquierda."],
+      gloss: [["ahí", "там"]], tip: "" },
+    { npc: "¡Que disfruten de su estancia!", ru: "Приятного пребывания!" }
+  ]
+},
+{
+  id: "aeropuerto", level: "A2", unlock: "a2u1l1", scene: "mexico", voice: "es-MX",
+  t: "Аэропорт Мехико", ti: "En el aeropuerto",
+  place: "Ciudad de México, aeropuerto",
+  char: { name: "Mariana", role: "сотрудница аэропорта", color: "#3d5a99" },
+  steps: [
+    { npc: "Buenas tardes. ¿A dónde viaja?", ru: "Добрый день. Куда летите?", task: "Скажите, куда летите (Voy a… / Viajo a…).",
+      accept: [["voy", "viajo", "vuelo"]], model: "Voy a Cancún.", opts: ["Voy a Cancún.", "Soy Cancún.", "¿A dónde voy yo?"], gloss: [["¿A dónde viaja?", "Куда Вы летите?"]], tip: "" },
+    { npc: "Su pasaporte y su pase de abordar, por favor.", ru: "Ваш паспорт и посадочный талон, пожалуйста.", task: "Подайте документы.",
+      accept: [["aquí", "tenga", "claro", "sí"]], model: "Aquí tiene.", opts: ["Aquí tiene.", "De nada a mí.", "Soy pasaporte."],
+      gloss: [["el pase de abordar", "посадочный талон (Мексика; в Испании — la tarjeta de embarque)"]], tip: "Слова в Мексике и Испании часто различаются." },
+    { npc: "¿Va a documentar maleta?", ru: "Будете сдавать чемодан?", task: "Скажите: да, один чемодан.",
+      accept: [["maleta", "sí"]], model: "Sí, una maleta.", opts: ["Sí, una maleta.", "Sí, soy maleta.", "Maleta tengo años."],
+      gloss: [["documentar", "сдать в багаж (Мексика; в Испании — facturar)"], ["la maleta", "чемодан"]], tip: "" },
+    { npc: "Muy bien, póngala aquí. ¿Prefiere ventanilla o pasillo?", ru: "Хорошо, поставьте сюда. Предпочитаете у окна или у прохода?", task: "Попросите место у окна.",
+      accept: [["ventanilla"]], model: "Ventanilla, por favor.", opts: ["Ventanilla, por favor.", "Pasillo soy yo.", "La ventana abro."],
+      gloss: [["la ventanilla", "окно (в транспорте)"], ["el pasillo", "проход"]], tip: "ventana — окно в доме, ventanilla — в самолёте." },
+    { npc: "Listo. El abordaje es a las cuatro y veinte por la sala doce.", ru: "Готово. Посадка в 16:20, выход номер двенадцать.", task: "Спросите, вылет по расписанию? (¿El vuelo sale a tiempo?)",
+      accept: [["tiempo", "retraso", "retrasado", "puntual", "a la hora"]], model: "¿El vuelo sale a tiempo?", opts: ["¿El vuelo sale a tiempo?", "¿El vuelo tiene horas?", "¿Qué hora es el vuelo?"],
+      gloss: [["Listo", "Готово"], ["el abordaje", "посадка (Мексика)"], ["a tiempo", "вовремя"], ["con retraso", "с опозданием"]], tip: "" },
+    { npc: "Sí, por ahora va a tiempo.", ru: "Да, пока по расписанию.", task: "Поблагодарите.",
+      accept: [["gracias", "perfecto", "muy amable"]], model: "Perfecto, ¡muchas gracias!", opts: ["Perfecto, ¡muchas gracias!", "De nada.", "Perdón, adiós tiempo."], gloss: [["por ahora", "пока что"]], tip: "" },
+    { npc: "¡A sus órdenes! ¡Buen viaje!", ru: "К Вашим услугам! Счастливого пути!" }
+  ]
+},
+{
+  id: "parrilla", level: "A2", unlock: "a2u1l2", scene: "buenosaires", voice: "es-AR",
+  t: "Ужин в Буэнос-Айресе (voseo!)", ti: "Una cena en la parrilla",
+  place: "Buenos Aires, parrilla en Palermo",
+  char: { name: "Martín", role: "официант-аргентинец", color: "#4a6fa5" },
+  steps: [
+    { npc: "¡Buenas noches! ¿Son dos? Pasen, pasen.", ru: "Добрый вечер! Вас двое? Проходите, проходите.", task: "Скажите: да, столик на двоих.",
+      accept: [["sí", "dos"]], model: "Sí, una mesa para dos, por favor.", opts: ["Sí, una mesa para dos, por favor.", "Sí, somos mesa.", "No, tengo dos años."], gloss: [["Pasen", "Проходите (ustedes)"]], tip: "" },
+    { npc: "Acá tienen la carta. ¿Qué van a tomar?", ru: "Вот меню. Что будете пить?", task: "Закажите бутылку воды без газа (agua sin gas).",
+      accept: [["agua"]], model: "Una botella de agua sin gas, por favor.", opts: ["Una botella de agua sin gas, por favor.", "Agua soy sin gas.", "Tomar yo."],
+      gloss: [["acá", "здесь (Лат. Америка; в Испании — aquí)"], ["sin gas / con gas", "без газа / с газом"]], tip: "" },
+    { npc: "Dale. ¿Ya elegiste? Te recomiendo el bife de chorizo, es buenísimo.", ru: "Договорились. Ты уже выбрал? Советую стейк «бифе де чорисо», он отличный.", task: "Закажите этот стейк.",
+      accept: [["bife", "chorizo", "carne"]], model: "Sí, quiero el bife de chorizo.", opts: ["Sí, quiero el bife de chorizo.", "Bife soy yo.", "Chorizo recomiendas tú."],
+      gloss: [["Dale", "ок, давай (Аргентина)"], ["¿Ya elegiste?", "Ты уже выбрал? (официант перешёл на «ты»)"], ["el bife de chorizo", "стейк из толстого края (не колбаса!)"]], tip: "В Аргентине официанты легко переходят на «ты»." },
+    { npc: "¿Cómo lo querés? ¿Jugoso, a punto o cocido?", ru: "Как тебе его сделать? С кровью, средней прожарки или хорошо прожаренный?", task: "Выберите среднюю прожарку (a punto).",
+      accept: [["punto"]], model: "A punto, por favor.", opts: ["A punto, por favor.", "Querés punto.", "Jugoso soy."],
+      gloss: [["querés", "хочешь (voseo = quieres)"], ["jugoso", "с кровью (букв. сочный)"], ["a punto", "средней прожарки"], ["cocido", "хорошо прожаренный"]], tip: "querés = quieres: так звучит аргентинское voseo." },
+    { npc: "(Después) ¿Y? ¿Te gustó?", ru: "(Потом) Ну как? Понравилось?", task: "Скажите, что было очень вкусно.",
+      accept: [["rico", "riquísimo", "buenísimo", "bueno", "delicioso", "gustó", "encantó", "sí"]], model: "¡Sí, estaba riquísimo!", opts: ["¡Sí, estaba riquísimo!", "Sí, soy rico.", "No, me gusté."],
+      gloss: [["¿Te gustó?", "Тебе понравилось? (indefinido)"], ["estaba", "было (imperfecto)"]], tip: "rico с estar — вкусный." },
+    { npc: "¡Qué bueno! ¿Querés un postre o un cafecito?", ru: "Отлично! Хочешь десерт или кофеёк?", task: "Откажитесь и попросите счёт.",
+      accept: [["cuenta"]], model: "No, gracias. La cuenta, por favor.", opts: ["No, gracias. La cuenta, por favor.", "La carta, por favor.", "La cuento, de nada."],
+      gloss: [["un cafecito", "кофеёк (уменьшительное -ito очень любят в Лат. Америке)"]], tip: "" },
+    { npc: "Ya te la traigo. ¡Gracias, che!", ru: "Сейчас принесу. Спасибо, дружище!" }
+  ]
+}
+];
