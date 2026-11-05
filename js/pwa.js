@@ -1,7 +1,7 @@
 /* Установка как приложения и работа офлайн */
 (function (IT) {
-  IT.pwa = { prompt: null, standalone: window.matchMedia && matchMedia("(display-mode: standalone)").matches || navigator.standalone === true };
-  if ("serviceWorker" in navigator && location.protocol !== "file:") {
+  IT.pwa = { prompt: null, standalone: IT.native || (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true };
+  if (!IT.native && "serviceWorker" in navigator && location.protocol !== "file:") {
     window.addEventListener("load", function () {
       navigator.serviceWorker.register("sw.js").catch(function (e) { console.warn("SW", e); });
     });

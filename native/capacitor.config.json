@@ -1,0 +1,7 @@
+{
+  "appId": "io.github.m1kropet.vamos",
+  "appName": "¡Vamos!",
+  "webDir": "www",
+  "android": { "allowMixedContent": false },
+  "server": { "androidScheme": "https" }
+}

@@ -68,7 +68,7 @@
   function appCard() {
     var inClaude = IT.api.inClaude(), key = IT.api.key();
     var h = '<div class="card app-card"><h3>' + IT.icon("globe") + ' Приложение на телефоне</h3>';
-    if (IT.pwa && IT.pwa.standalone) h += '<p class="sm ok-t">' + IT.icon("check") + ' Приложение установлено и работает офлайн.</p>';
+    if (IT.pwa && IT.pwa.standalone) h += '<p class="sm ok-t">' + IT.icon("check") + (IT.native ? ' Android-приложение: работает без браузера и без интернета.</p>' : ' Приложение установлено и работает офлайн.</p>');
     else h += '<p class="sm muted">Установите ¡Vamos! на главный экран: откроется как обычное приложение, без адресной строки, и будет работать без интернета.</p><button class="btn primary" data-install>' + IT.icon("plus") + ' Установить приложение</button>';
     if (!inClaude) {
       h += '<h4 class="mt">' + IT.icon("sparkles") + ' ИИ: преподаватель, переводчик, разбор видео</h4><p class="sm muted">Вне claude.ai ИИ работает через Anthropic API. Нужен ваш ключ из console.anthropic.com (оплата по факту использования). Ключ хранится только на этом устройстве и отправляется только на api.anthropic.com.</p>' +
