@@ -39,7 +39,7 @@ js/ui/                  экраны приложения
 ## Публикация на GitHub Pages
 
 1. В репозитории: **Settings → Pages → Build and deployment → Source: Deploy from a branch**, ветка `main`, папка `/ (root)` → **Save**.
-2. Через 1–2 минуты приложение будет доступно по адресу `https://<логин>.github.io/<репозиторий>/`.
+2. Через 1–2 минуты приложение будет доступно по адресу **https://m1kropet.github.io/vamos-espanol/**.
 
 ## 1. Другие способы разместить приложение
 
