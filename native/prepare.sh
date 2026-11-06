@@ -53,3 +53,6 @@ configurations.all {
     }
 }
 GRADLE
+# плагин обновлений требует Android 6.0+ (minSdk 23)
+sed -i -E 's/minSdkVersion = [0-9]+/minSdkVersion = 23/' android/variables.gradle
+grep -n "minSdkVersion" android/variables.gradle
