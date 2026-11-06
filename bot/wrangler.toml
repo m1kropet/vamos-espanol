@@ -1,0 +1,19 @@
+# Конфигурация Cloudflare Worker. KV_ID подставляется автоматически при деплое (GitHub Actions).
+name = "vamos-bot"
+main = "src/worker.js"
+compatibility_date = "2025-09-01"
+workers_dev = true
+
+[ai]
+binding = "AI"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "KV_ID"
+
+[triggers]
+# каждый час: бот проверяет, кому пора прислать тренировку дня
+crons = ["0 * * * *"]
+
+[observability]
+enabled = true

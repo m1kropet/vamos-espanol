@@ -1,0 +1,99 @@
+name: Telegram bot
+
+on:
+  push:
+    branches: [main]
+    paths: ["bot/**", "js/data/**", ".github/workflows/bot.yml"]
+  workflow_dispatch:
+
+concurrency:
+  group: bot-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    defaults:
+      run:
+        working-directory: bot
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Упражнения из курса + тесты
+        run: |
+          node scripts/build-content.mjs
+          npm test
+
+      - name: Проверка секретов
+        id: check
+        run: |
+          missing=""
+          [ -z "$CLOUDFLARE_API_TOKEN" ] && missing="$missing CLOUDFLARE_API_TOKEN"
+          [ -z "$CLOUDFLARE_ACCOUNT_ID" ] && missing="$missing CLOUDFLARE_ACCOUNT_ID"
+          [ -z "$TELEGRAM_BOT_TOKEN" ] && missing="$missing TELEGRAM_BOT_TOKEN"
+          if [ -n "$missing" ]; then
+            echo "::warning::Бот не развёрнут: не заданы секреты репозитория:$missing. Инструкция — bot/README.md"
+            echo "ready=no" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=yes" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Установка wrangler
+        if: steps.check.outputs.ready == 'yes'
+        run: npm install --no-audit --no-fund
+
+      - name: Хранилище (KV)
+        if: steps.check.outputs.ready == 'yes'
+        run: |
+          find_id() { npx wrangler kv namespace list 2>/dev/null | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const a=JSON.parse(s.slice(s.indexOf("[")));const n=a.find(x=>/vamos-bot-kv/.test(x.title));if(n)console.log(n.id)}catch(e){}})'; }
+          ID=$(find_id)
+          if [ -z "$ID" ]; then
+            npx wrangler kv namespace create vamos-bot-kv
+            ID=$(find_id)
+          fi
+          if [ -z "$ID" ]; then echo "::error::Не удалось создать KV. Проверьте права токена Cloudflare (шаблон «Edit Cloudflare Workers»)."; exit 1; fi
+          echo "KV: $ID"
+          sed -i "s/KV_ID/$ID/" wrangler.toml
+
+      - name: Деплой
+        if: steps.check.outputs.ready == 'yes'
+        run: |
+          set -o pipefail
+          npx wrangler deploy 2>&1 | tee deploy.log
+          URL=$(grep -oE 'https://[a-zA-Z0-9._-]+\.workers\.dev' deploy.log | head -1)
+          if [ -z "$URL" ]; then
+            echo "::error::Не найден адрес *.workers.dev. Откройте dash.cloudflare.com → Workers & Pages один раз, чтобы создать поддомен workers.dev, и перезапустите workflow."
+            exit 1
+          fi
+          echo "URL=$URL" >> "$GITHUB_ENV"
+
+      - name: Секреты бота
+        if: steps.check.outputs.ready == 'yes'
+        run: |
+          printf '%s' "$TELEGRAM_BOT_TOKEN" | npx wrangler secret put TELEGRAM_BOT_TOKEN
+          if [ -n "$ANTHROPIC_API_KEY" ]; then printf '%s' "$ANTHROPIC_API_KEY" | npx wrangler secret put ANTHROPIC_API_KEY; fi
+
+      - name: Подключение к Telegram
+        if: steps.check.outputs.ready == 'yes'
+        run: |
+          KEY=$(printf '%s' "$TELEGRAM_BOT_TOKEN" | sha256sum | cut -c1-32)
+          echo "::add-mask::$KEY"
+          for i in $(seq 1 12); do
+            R=$(curl -s "$URL/setup?k=$KEY" || true)
+            echo "$R" | grep -q '"ok":true' && break
+            echo "Ждём, пока адрес заработает ($i)…"; sleep 10
+          done
+          echo "$R" | sed "s/$KEY/***/g"
+          echo "$R" | grep -q '"ok":true' || { echo "::error::Telegram не принял webhook. Проверьте TELEGRAM_BOT_TOKEN."; exit 1; }
+          BOT=$(echo "$R" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>console.log(JSON.parse(s).bot||""))')
+          echo "### ✅ Бот работает: https://t.me/$BOT" >> "$GITHUB_STEP_SUMMARY"
+          echo "Бот: https://t.me/$BOT"
