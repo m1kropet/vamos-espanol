@@ -40,8 +40,20 @@ sed -i -E "s/versionCode [0-9]+/versionCode $CODE/; s/versionName \"[^\"]*\"/ver
 grep -nE "versionCode|versionName" "$GR"
 
 # Постоянный ключ подписи: новая версия ставится поверх старой без удаления
-mkdir -p "$HOME/.android"
-cp debug.keystore "$HOME/.android/debug.keystore"
+grep -q "VAMOS_SIGNING" "$GR" || cat >> "$GR" <<'GRADLE'
+
+// VAMOS_SIGNING: один и тот же ключ для всех сборок
+android {
+    signingConfigs {
+        debug {
+            storeFile file("${rootDir}/../debug.keystore")
+            storePassword "android"
+            keyAlias "androiddebugkey"
+            keyPassword "android"
+        }
+    }
+}
+GRADLE
 
 # Совместимость с Capacitor 6 (compileSdk 34): фиксируем версию WorkManager, которую тянет плагин обновлений
 grep -q "androidx.work:work-runtime" "$GR" || cat >> "$GR" <<'GRADLE'

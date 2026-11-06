@@ -50,7 +50,8 @@ jobs:
           cd ../www && zip -qr "../../web-$VER.zip" . && cd -
           ls -la ../../Vamos.apk ../../web-$VER.zip
           # подпись постоянным ключом
-          $ANDROID_HOME/build-tools/$(ls $ANDROID_HOME/build-tools | sort -V | tail -1)/apksigner verify --print-certs ../../Vamos.apk | head -3
+          $ANDROID_HOME/build-tools/$(ls $ANDROID_HOME/build-tools | sort -V | tail -1)/apksigner verify --print-certs ../../Vamos.apk | tee /tmp/cert.txt | head -3
+          grep -q "e558c86abeaf5e903430be25de63771f1c77c2a139346eb01fbe1ab6b06bbadd" /tmp/cert.txt || { echo "::error::APK подписан не тем ключом"; exit 1; }
 
       - uses: actions/upload-artifact@v4
         with:
