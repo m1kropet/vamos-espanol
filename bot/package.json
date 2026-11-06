@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "content": "node scripts/build-content.mjs",
-    "test": "node test/content.mjs && node test/fallback.mjs && node test/sim.mjs",
+    "test": "node test/content.mjs && node test/fallback.mjs && node test/sim.mjs && node test/cloud.mjs",
     "deploy": "wrangler deploy"
   },
   "devDependencies": {

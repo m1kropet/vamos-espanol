@@ -18,7 +18,7 @@ const hasCyr = (s) => /[а-яё]/i.test(s);
 
 const say = [], tr = [], choice = [], fill = [], fix = [], vocab = [];
 const seenSay = new Set();
-function addSay(es, ru, lv, src) {
+function addSay(es, ru, lv, src, lid) {
   es = clean(es); ru = clean(ru);
   if (!es || hasCyr(es) || es.includes("___")) return;
   const n = words(es);
@@ -26,7 +26,7 @@ function addSay(es, ru, lv, src) {
   const k = es.toLowerCase();
   if (seenSay.has(k)) return;
   seenSay.add(k);
-  say.push([es, ru, lv, src]);
+  say.push([es, ru, lv, src, lid || ""]);
 }
 
 IT.units.forEach((u, ui) => {
@@ -34,26 +34,26 @@ IT.units.forEach((u, ui) => {
   u.lessons.forEach((l, li) => {
     const src = (u.t || "") + " · " + (l.t || "");
     (l.ex || []).forEach((e) => {
-      addSay(e[0], e[1], lv, src);
-      if (e[0] && e[1] && !hasCyr(e[0]) && words(e[0]) <= 10) tr.push([clean(e[1]), clean(e[0]), (e[4] || []).map(clean), lv, clean(e[3] || "")]);
+      addSay(e[0], e[1], lv, src, l.id);
+      if (e[0] && e[1] && !hasCyr(e[0]) && words(e[0]) <= 10) tr.push([clean(e[1]), clean(e[0]), (e[4] || []).map(clean), lv, clean(e[3] || ""), l.id]);
     });
     (l.voc || []).forEach((v) => {
       const p = String(v).split("|");
-      if (p[0] && p[1]) vocab.push([p[0], p[1], p[2] || "", p[3] || "", lv]);
-      if (p[4]) addSay(p[4], p[5] || "", lv, src);
+      if (p[0] && p[1]) vocab.push([p[0], p[1], p[2] || "", p[3] || "", lv, l.id]);
+      if (p[4]) addSay(p[4], p[5] || "", lv, src, l.id);
     });
     (l.q || []).forEach((q) => {
-      if (q[0] === "c" && Array.isArray(q[2]) && q[2].length >= 2 && q[2].length <= 4) choice.push([clean(q[1]), q[2].map(clean), q[3], clean(q[4]), lv]);
-      else if (q[0] === "f") fill.push([clean(q[1]), String(q[2]).split("/").map(clean), clean(q[3]), clean(q[4] || ""), lv]);
-      else if (q[0] === "x") fix.push([clean(q[1]), String(q[2]).split("/").map(clean), clean(q[3]), lv]);
+      if (q[0] === "c" && Array.isArray(q[2]) && q[2].length >= 2 && q[2].length <= 4) choice.push([clean(q[1]), q[2].map(clean), q[3], clean(q[4]), lv, l.id]);
+      else if (q[0] === "f") fill.push([clean(q[1]), String(q[2]).split("/").map(clean), clean(q[3]), clean(q[4] || ""), lv, l.id]);
+      else if (q[0] === "x") fix.push([clean(q[1]), String(q[2]).split("/").map(clean), clean(q[3]), lv, l.id]);
     });
   });
 });
 (IT.dialogues || []).forEach((d) => {
   const lv = d.level || "A1";
   (d.steps || []).forEach((s) => {
-    addSay(s.npc, s.ru, lv, "Диалог: " + (d.t || ""));
-    addSay(s.model, "", lv, "Диалог: " + (d.t || ""));
+    addSay(s.npc, s.ru, lv, "Диалог: " + (d.t || ""), "dlg:" + d.id);
+    addSay(s.model, "", lv, "Диалог: " + (d.t || ""), "dlg:" + d.id);
   });
 });
 Object.entries(IT.wordExamples || {}).forEach(([, e]) => addSay(e[0], e[1], "A1", "Словарь"));

@@ -5,6 +5,7 @@ import { transcribe, speak } from "./speech.js";
 import { align, wordTips, stressView, youglish, forvo, spanishdict, tokens, TIP_NAMES } from "./pron.js";
 import { makeExercise, randomType, DAILY_PLAN, render, hint, checkText, checkChoice, feedback, plural } from "./exercises.js";
 import { chatReply, opener, TOPICS } from "./chat.js";
+import { handleCloud, redeemLink, getAppState, summarize, pushEvents } from "./cloud.js";
 
 const VERSION = "1.0";
 const MENU = {
@@ -24,6 +25,7 @@ const COMMANDS = [
   ["chat", "Разговор с носителем"],
   ["word", "Как произносится слово: /word palabra"],
   ["stats", "Прогресс"],
+  ["app", "Связь с приложением"],
   ["settings", "Настройки"],
   ["help", "Помощь"],
 ];
@@ -44,7 +46,35 @@ function freshUser(id, chat, name) {
   };
 }
 const getUser = async (env, id) => JSON.parse((await env.KV.get("u:" + id)) || "null");
-const saveUser = (env, u) => env.KV.put("u:" + u.id, JSON.stringify(u));
+const saveUser = (env, u) => env.KV.put("u:" + u.id, JSON.stringify(u, (k, v) => (k === "ctx" ? undefined : v)));
+
+// Прогресс из приложения (если аккаунт подключён) — для выбора заданий по пройденному материалу
+async function loadCtx(env, u) {
+  u.ctx = null;
+  if (!u.link || !u.link.sub) return;
+  try {
+    const sum = summarize(await getAppState(env, u.link.sub));
+    if (!sum) return;
+    u.ctx = { lessonSet: new Set(sum.lessons.concat(sum.dlg)), wordSet: new Set(sum.learned), due: sum.due, weak: sum.weak, sum };
+  } catch (e) {
+    console.log("ctx error", e.message);
+  }
+}
+async function botName(env) {
+  let n = await env.KV.get("botname");
+  if (!n && env.TELEGRAM_BOT_TOKEN) {
+    const me = await tg(env).call("getMe");
+    n = me.ok ? me.result.username : "";
+    if (n) await env.KV.put("botname", n);
+  }
+  return n || "";
+}
+function appLine(u) {
+  if (!u.link) return "";
+  const s = u.ctx && u.ctx.sum;
+  if (!s) return "\n📱 Приложение подключено" + (u.link.email ? " (" + esc(u.link.email) + ")" : "") + ", но прогресс ещё не синхронизирован — открой приложение.";
+  return "\n📱 <b>Приложение</b>: уроков пройдено " + s.lessons.length + ", слов в словаре " + s.learned.length + (s.due.length ? ", к повторению сегодня " + s.due.length : "") + ".";
+}
 async function userList(env) {
   return JSON.parse((await env.KV.get("users")) || "[]");
 }
@@ -126,12 +156,12 @@ async function nextOrFinish(env, T, u) {
 const nextKb = (u) => kb([[[u.plan ? "▶️ Дальше (" + (u.planPos + 2 > u.plan.length ? "итоги" : u.planPos + 2 + "/" + u.plan.length) + ")" : "▶️ Следующее", "next"]]]);
 
 async function startDaily(env, T, u, auto) {
-  u.plan = DAILY_PLAN();
+  u.plan = DAILY_PLAN(u);
   u.planPos = 0;
   u.lastDaily = localDate(u);
   const s = u.stats;
   const greet = auto
-    ? "☀️ <b>¡Hola! Время испанского.</b>\nСегодня " + u.plan.length + " коротких заданий, около 5 минут." + (s.streak ? "\n🔥 Серия: " + s.streak + " " + plural(s.streak, "день", "дня", "дней") + " — не прерывай!" : "")
+    ? "☀️ <b>¡Hola! Время испанского.</b>\nСегодня " + u.plan.length + " коротких заданий, около 5 минут." + (s.streak ? "\n🔥 Серия: " + s.streak + " " + plural(s.streak, "день", "дня", "дней") + " — не прерывай!" : "") + (u.ctx && u.ctx.due.length ? "\n🔁 Из приложения пора повторить слов: " + u.ctx.due.length + "." : "")
     : "📅 <b>Тренировка дня</b>: " + u.plan.length + " заданий — произношение, слова, грамматика, на слух.";
   await T.send(u.chat, greet, { reply_markup: MENU });
   await sendExercise(env, T, u, u.plan[0]);
@@ -285,7 +315,8 @@ function statsView(u) {
   return (
     "📊 <b>Твой прогресс</b>\n\n⚡ Опыт: <b>" + s.xp + " XP</b>\n🔥 Серия: <b>" + s.streak + " " + plural(s.streak, "день", "дня", "дней") + "</b>\n✅ Заданий: <b>" + s.done + "</b> (верно " + acc + "%)\n🎙 Произношение: <b>" + s.say + "</b> попыток, средний балл <b>" + avg + "/100</b>\n💬 Реплик в разговоре: <b>" + s.chat + "</b>" +
     (tips.length ? "\n\n🎯 Звуки, над которыми стоит поработать: <b>" + esc(tips.join(", ")) + "</b>" : "") +
-    (weak.length ? "\n🔁 Трудные слова: " + esc(weak.join(", ")) + "\n<i>Они будут чаще попадаться в заданиях на произношение.</i>" : "")
+    (weak.length ? "\n🔁 Трудные слова: " + esc(weak.join(", ")) + "\n<i>Они будут чаще попадаться в заданиях на произношение.</i>" : "") +
+    (u.link ? "\n" + appLine(u) : "\n\n📱 Подключи приложение, чтобы задания шли по пройденным урокам: /app")
   );
 }
 
@@ -296,7 +327,8 @@ const HELP =
   "   Своя фраза: <code>/say ¿Dónde está la estación?</code>\n" +
   "💬 <b>Разговор</b> — болтаешь с «носителем» голосом или текстом, он отвечает голосом и исправляет ошибки.\n" +
   "📅 <b>Тренировка дня</b> — 6 заданий, бот сам присылает её в выбранное время.\n" +
-  "🔤 <code>/word palabra</code> — как произносится слово.\n\n" +
+  "🔤 <code>/word palabra</code> — как произносится слово.\n" +
+  "📱 /app — связать с приложением: задания по пройденным урокам и повторение слов из твоего словаря.\n\n" +
   "Голосовые принимаются в любой момент: в упражнении — проверка, в разговоре — ответ собеседнику.";
 
 // ---------- обработка сообщений ----------
@@ -312,6 +344,7 @@ async function onMessage(env, T, m) {
     await addUser(env, id);
   }
   u.chat = m.chat.id;
+  await loadCtx(env, u);
   try {
     await route(env, T, u, m);
   } finally {
@@ -328,6 +361,28 @@ async function route(env, T, u, m) {
   const cmd = cmd0.toLowerCase().replace(/@.*$/, "");
   const rest = restArr.join(" ").trim();
 
+  if (cmd === "/start" && /^L[0-9a-f]{16}$/.test(rest)) {
+    const who = await redeemLink(env, rest.slice(1), u.id);
+    if (!who) return T.send(u.chat, "⚠️ Ссылка для подключения устарела. В приложении нажми «Подключить Telegram-бота» ещё раз.");
+    u.link = { sub: who.sub, email: who.email || "", at: Date.now() };
+    await loadCtx(env, u);
+    const s0 = u.ctx && u.ctx.sum;
+    if (!u.onboarded) {
+      u.onboarded = true;
+      u.level = s0 && s0.unlocked >= 10 ? "A2" : "A1";
+    }
+    await T.send(u.chat, "🔗 <b>Приложение подключено!</b> " + (who.email ? "(" + esc(who.email) + ")" : "") + appLine(u) + "\n\nТеперь задания берутся из уроков, которые ты прошёл в приложении, слова для повторения — по графику из твоего словаря, а результаты повторения из бота попадут обратно в приложение.", { reply_markup: MENU });
+    return sendExercise(env, T, u, u.ctx && u.ctx.due.length ? "review" : "say");
+  }
+  if (cmd === "/app") {
+    if (u.link) return T.send(u.chat, appLine(u).trim() + "\n\nОтключить: /unlink", { reply_markup: MENU });
+    return T.send(u.chat, "📱 <b>Связь с приложением</b>\n\n1. Открой приложение ¡Vamos! → <b>Профиль</b>.\n2. Нажми <b>«Войти через Google»</b>.\n3. Нажми <b>«Подключить Telegram-бота»</b> — откроется этот чат, и всё свяжется само.\n\nПосле этого бот будет давать задания по пройденным урокам и слова на повторение из твоего словаря.", { reply_markup: kb([[["📱 Открыть приложение", "https://m1kropet.github.io/vamos-espanol/#profile"]]]) });
+  }
+  if (cmd === "/unlink") {
+    delete u.link;
+    u.ctx = null;
+    return T.send(u.chat, "Приложение отключено. Задания снова выбираются по уровню.", { reply_markup: MENU });
+  }
   if (cmd === "/start" || !u.onboarded) {
     if (!u.onboarded) {
       await T.send(u.chat, "¡Hola, " + esc(u.name || "amigo") + "! 👋\nЯ помогу практиковать испанский вне приложения: задания каждый день, разбор произношения по твоим голосовым и разговор с «носителем».\n\nДля начала — твой уровень?", {
@@ -346,7 +401,7 @@ async function route(env, T, u, m) {
   if (cmd === "/daily" || text === "📅 Тренировка дня") return startDaily(env, T, u, false);
   if (cmd === "/ex" || text === "🎯 Упражнение") {
     u.plan = null;
-    const TYPES = { say: "say", tr: "tr", listen: "listen", choice: "choice", fill: "fill", fix: "fix", vocab: "vocab" };
+    const TYPES = { say: "say", tr: "tr", listen: "listen", choice: "choice", fill: "fill", fix: "fix", vocab: "vocab", review: "review" };
     return sendExercise(env, T, u, TYPES[rest] || undefined);
   }
   if (cmd === "/chat" || text === "💬 Разговор") {
@@ -456,6 +511,7 @@ async function onCallback(env, T, q) {
   const u = await getUser(env, id);
   if (!u) return T.answer(q.id, "Нажми /start");
   u.chat = q.message.chat.id;
+  await loadCtx(env, u);
   try {
     await T.answer(q.id);
     await callback(env, T, u, q.data, q.message);
@@ -538,6 +594,7 @@ async function callback(env, T, u, data, msg) {
     const res = checkChoice(ex, +a);
     addResult(u, res.ok, res.ok ? 10 : 2);
     u.pending = null;
+    if (ex.type === "vocab" && u.link) await pushEvents(env, u.link.sub, [{ k: ex.es, ok: res.ok, t: Date.now() }]);
     const marked = ex.opts.map((o, i) => (i === ex.right ? "✅ " : i === +a ? "❌ " : "▫️ ") + esc(o)).join("\n");
     await T.edit(u.chat, mid, msg.text ? esc(msg.text.split("\n")[0]) + "\n\n" + marked : marked);
     await T.send(u.chat, feedback(ex, res, ""), { reply_markup: nextKb(u) });
@@ -576,6 +633,7 @@ async function cron(env) {
     if (!u || !u.daily || !u.onboarded) continue;
     const today = localDate(u);
     if (u.lastDaily === today || localHour(u) !== u.hour) continue;
+    await loadCtx(env, u);
     try {
       await startDaily(env, T, u, true);
     } catch (e) {
@@ -593,12 +651,17 @@ export default {
     const key = await hashKey(env.TELEGRAM_BOT_TOKEN);
     const T = tg(env);
 
+    if (url.pathname.startsWith("/auth/") || url.pathname.startsWith("/api/")) {
+      const r = await handleCloud(request, env, url, await botName(env));
+      if (r) return r;
+    }
     if (url.pathname === "/setup") {
       if (url.searchParams.get("k") !== key) return new Response("forbidden", { status: 403 });
       const hook = await T.call("setWebhook", { url: url.origin + "/tg", secret_token: key, allowed_updates: ["message", "callback_query"], drop_pending_updates: true });
       const cmds = await T.call("setMyCommands", { commands: COMMANDS.map(([command, description]) => ({ command, description })) });
       await T.call("setMyDescription", { description: "Практика испанского: упражнения каждый день, разбор произношения по голосовым, разговор с носителем." });
       const me = await T.call("getMe");
+      if (me.ok) await env.KV.put("botname", me.result.username);
       return Response.json({ ok: hook.ok && cmds.ok, webhook: hook, bot: me.result && me.result.username, version: VERSION });
     }
     if (url.pathname === "/tg" && request.method === "POST") {

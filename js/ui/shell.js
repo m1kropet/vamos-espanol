@@ -286,6 +286,7 @@
     if (ev === "weekly") IT.toast(IT.icon("trophy") + " <b>" + IT.t("weeklyDone") + "</b> +100 XP", "gold");
     if (ev === "ach") IT.toast('<span class="ach-emoji">' + d.i + "</span> <b>" + IT.t("achUnlocked") + "</b> " + esc(IT.tt(d)), "gold");
     if (ev === "levelup") setTimeout(function () { IT.confetti(); IT.modal('<div class="center"><div class="big-badge">' + d + '</div><h2 class="m-title">' + IT.t("levelUp") + '</h2><p class="muted">' + IT.t("levelUpText") + '</p><button class="btn primary mt" data-close>' + IT.t("great") + "</button></div>"); }, 400);
+    if (ev === "cloud" && IT.updateCloudCard) IT.updateCloudCard();
     if (ev === "remote-loaded") { IT.applyTheme(); IT.render(); IT.toast(IT.icon("refresh") + " " + IT.t("syncLoaded"), "ok"); }
   });
 })(window.IT);

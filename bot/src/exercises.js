@@ -5,7 +5,25 @@ import { esc } from "./tg.js";
 
 const LV = { esp: "Испания", lat: "Лат. Америка" };
 
-function pool(list, user, lvIdx) {
+// Индексы полей: уровень и урок для каждого типа контента
+const LID = { say: 4, tr: 5, choice: 5, fill: 5, fix: 4, vocab: 5 };
+
+// Если приложение подключено — только материал из пройденных уроков (и слова из словаря пользователя)
+function fromApp(list, user, type, lvIdx) {
+  const c = user.ctx;
+  if (!c || !c.lessonSet || !c.lessonSet.size) return null;
+  const li = LID[type];
+  let ids = list.map((x, i) => [x, i]).filter(([x]) => c.lessonSet.has(x[li])).map(([, i]) => i);
+  if (type === "vocab" && c.wordSet && c.wordSet.size) {
+    const byWord = list.map((x, i) => [x, i]).filter(([x]) => c.wordSet.has(x[0])).map(([, i]) => i);
+    ids = [...new Set(ids.concat(byWord))];
+  }
+  return ids.length >= 4 ? ids : null;
+}
+
+function pool(list, user, lvIdx, type) {
+  const app = type ? fromApp(list, user, type, lvIdx) : null;
+  if (app) return app;
   if (user.level === "all") return list.map((_, i) => i);
   let ids = list.map((x, i) => [x[lvIdx], i]).filter(([lv]) => lv === user.level).map(([, i]) => i);
   if (user.level === "A2") ids = ids.concat(list.map((x, i) => [x[lvIdx], i]).filter(([lv]) => lv === "A1" && Math.random() < 0.3).map(([, i]) => i));
@@ -37,54 +55,72 @@ export function makeExercise(user, type) {
     case "say": {
       // иногда — фраза со «слабым» словом, которое раньше не получалось
       const weak = Object.entries(user.weak || {}).sort((a, b) => b[1] - a[1]).map(([w]) => w);
+      // + слова, в которых часто ошибаешься в приложении
+      ((user.ctx && user.ctx.weak) || []).forEach((k) => {
+        const t = tokens(k).pop();
+        if (t && t.n.length > 2 && !weak.includes(t.n)) weak.push(t.n);
+      });
       if (weak.length && Math.random() < 0.35) {
         const w = weak[Math.floor(Math.random() * Math.min(5, weak.length))];
-        const hit = C.say.map((s, i) => [s, i]).filter(([s]) => tokens(s[0]).some((t) => t.n === w) && s[0].split(" ").length <= 8);
+        const allowed = new Set(pool(C.say, user, 2, "say"));
+        const hit = C.say.map((s, i) => [s, i]).filter(([s, i]) => allowed.has(i) && tokens(s[0]).some((t) => t.n === w) && s[0].split(" ").length <= 8);
         if (hit.length) {
           const [s, i] = hit[Math.floor(Math.random() * hit.length)];
           return { type: "say", es: s[0], ru: s[1], src: s[3], id: i, weak: w };
         }
       }
-      const id = pickFrom(user, "say", pool(C.say, user, 2));
+      const id = pickFrom(user, "say", pool(C.say, user, 2, "say"));
       const s = C.say[id];
       return { type: "say", es: s[0], ru: s[1], src: s[3], id };
     }
     case "listen": {
-      const ids = pool(C.say, user, 2).filter((i) => C.say[i][0].split(" ").length <= 8);
+      const ids = pool(C.say, user, 2, "say").filter((i) => C.say[i][0].split(" ").length <= 8);
       const id = pickFrom(user, "listen", ids);
       const s = C.say[id];
       return { type: "listen", es: s[0], ru: s[1], id };
     }
     case "tr": {
-      const id = pickFrom(user, "tr", pool(C.tr, user, 3));
+      const id = pickFrom(user, "tr", pool(C.tr, user, 3, "tr"));
       const t = C.tr[id];
       return { type: "tr", ru: t[0], ans: [t[1], ...t[2]], note: t[4], id };
     }
     case "choice": {
-      const id = pickFrom(user, "choice", pool(C.choice, user, 4));
+      const id = pickFrom(user, "choice", pool(C.choice, user, 4, "choice"));
       const q = C.choice[id];
       const order = shuffle(q[1].map((_, i) => i));
       return { type: "choice", q: q[0], opts: order.map((i) => q[1][i]), right: order.indexOf(q[2]), expl: q[3], id };
     }
     case "fill": {
-      const id = pickFrom(user, "fill", pool(C.fill, user, 4));
+      const id = pickFrom(user, "fill", pool(C.fill, user, 4, "fill"));
       const q = C.fill[id];
       return { type: "fill", q: q[0], ans: q[1], expl: q[2], hint: q[3], id };
     }
     case "fix": {
-      const id = pickFrom(user, "fix", pool(C.fix, user, 3));
+      const id = pickFrom(user, "fix", pool(C.fix, user, 3, "fix"));
       const q = C.fix[id];
       return { type: "fix", q: q[0], ans: q[1], expl: q[2], id };
     }
+    case "review":
     case "vocab": {
-      const ids = pool(C.vocab, user, 4);
-      const id = pickFrom(user, "vocab", ids);
+      const ids = pool(C.vocab, user, 4, "vocab");
+      let id;
+      // повторение: слова, которые по графику приложения пора повторить
+      const due = type === "review" && user.ctx && user.ctx.due ? user.ctx.due : [];
+      const dueIds = due.map((k) => C.vocab.findIndex((v) => v[0] === k)).filter((i) => i >= 0);
+      if (dueIds.length) {
+        const recent = (user.seen && user.seen.review) || [];
+        const fresh = dueIds.filter((i) => !recent.includes(i));
+        id = (fresh.length ? fresh : dueIds)[0];
+        user.seen = user.seen || {};
+        user.seen.review = recent.concat(id).slice(-10);
+      } else id = pickFrom(user, "vocab", ids);
       const v = C.vocab[id];
       const rev = Math.random() < 0.4;
       const others = shuffle(ids.filter((i) => i !== id && C.vocab[i][1] !== v[1] && C.vocab[i][0] !== v[0])).slice(0, 3);
       const opts = shuffle([id, ...others]);
       return {
         type: "vocab",
+        review: dueIds.length > 0,
         rev,
         word: rev ? v[1] : v[0],
         opts: opts.map((i) => (rev ? C.vocab[i][0] : C.vocab[i][1])),
@@ -104,7 +140,12 @@ export function randomType() {
   return r < 0.34 ? "say" : r < 0.46 ? "vocab" : r < 0.58 ? "choice" : r < 0.68 ? "tr" : r < 0.78 ? "listen" : r < 0.89 ? "fill" : "fix";
 }
 
-export const DAILY_PLAN = () => ["say", "vocab", shuffle(["choice", "fill", "fix"])[0], "say", shuffle(["tr", "listen"])[0], "say"];
+export const DAILY_PLAN = (user) => {
+  const due = user && user.ctx && user.ctx.due ? user.ctx.due.length : 0;
+  const plan = ["say", due ? "review" : "vocab", shuffle(["choice", "fill", "fix"])[0], "say", shuffle(["tr", "listen"])[0], "say"];
+  if (due >= 3) plan.splice(4, 0, "review");
+  return plan;
+};
 
 // Текст задания. Возвращает { text, keyboard, audio: строка для озвучки | null, audioCaption }
 export function render(ex, user, n) {
@@ -137,7 +178,7 @@ export function render(ex, user, n) {
       return { text: head + "❓ <b>" + esc(ex.q) + "</b>", keyboard: ex.opts.map((o, i) => [[o, "a:" + i]]).concat([skip]) };
     case "vocab":
       return {
-        text: head + "📚 <b>Что значит " + (ex.rev ? "по-испански" : "") + "</b>\n\n<b>" + esc(ex.word) + "</b>" + (ex.rev ? "" : "\n<i>" + esc(ex.pron) + "</i>"),
+        text: head + (ex.review ? "🔁 <b>Повторение из приложения</b> · " : "") + "📚 <b>Что значит " + (ex.rev ? "по-испански" : "") + "</b>\n\n<b>" + esc(ex.word) + "</b>" + (ex.rev ? "" : "\n<i>" + esc(ex.pron) + "</i>"),
         keyboard: ex.opts.map((o, i) => [[o, "a:" + i]]).concat([skip]),
         audio: ex.rev ? null : ex.es,
       };

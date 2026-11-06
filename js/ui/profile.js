@@ -13,6 +13,7 @@
     var voice = !IT.audio.available() ? t("noSpeech") : IT.audio.hasSpanish() ? t("voiceOk") + " " + IT.audio.voiceName() : t("noItVoice");
     var html = '<div class="page-head"><h1>' + t("navProfile") + "</h1></div>" +
       '<div class="card prof-head"><div class="big-badge">' + lv.level + '</div><div class="grow"><h3>' + t("level") + " " + lv.level + " · " + IT.prog.cefr() + '</h3><div class="bar"><i style="width:' + lv.pct + '%"></i></div><p class="muted sm">' + st.xp + " XP · " + t("toNext") + " " + (lv.need - lv.cur) + ' XP</p></div><div class="row gap"><span class="chip flame">' + IT.icon("flame") + IT.streakAlive() + '</span><span class="chip gold">' + IT.icon("trophy") + got + "/" + IT.ACH.length + "</span></div></div>";
+    html += '<div class="card cloud-card">' + cloudCard() + "</div>";
     html += '<div class="grid two"><div class="card settings"><h3>' + IT.icon("gear") + " " + t("settings") + "</h3>" +
       row(t("uiLang"), seg("ui", [["ru", "Русский"], ["es", "Español"]], p.ui)) +
       row(t("theme"), seg("theme", [["light", IT.icon("sun") + " " + t("light")], ["dark", IT.icon("moon") + " " + t("dark")], ["auto", t("auto")]], p.theme)) +
@@ -58,6 +59,11 @@
         };
       }
       if (e.target.closest("[data-install]")) return IT.pwa.install();
+      if (e.target.closest("[data-gsignin]")) return IT.cloud.signIn();
+      if (e.target.closest("[data-gsignout]")) return IT.confirm("Выйти из аккаунта Google? Прогресс останется на этом устройстве.", "Выйти", function () { IT.cloud.signOut(); });
+      if (e.target.closest("[data-gsync]")) { IT.toast("Синхронизирую…"); return IT.cloud.push(true).then(function () { return IT.cloud.refreshBot(); }).then(function (n) { IT.toast(IT.icon("check") + " Синхронизировано" + (n ? " · из бота: " + n + " повтор." : ""), "ok"); }); }
+      if (e.target.closest("[data-tglink]")) { IT.toast("Открываю Telegram…"); return IT.cloud.push(true).then(function () { return IT.cloud.linkTelegram(); }).catch(function (er) { IT.toast("Не получилось: " + er.message, "warn"); }); }
+      if (e.target.closest("[data-tgunlink]")) return IT.confirm("Отключить Telegram-бота от приложения?", "Отключить", function () { IT.cloud.unlinkTelegram(); });
       if (e.target.closest("[data-savekey]")) { var v = main.querySelector("[data-apikey]").value.trim(); if (!v || v.indexOf("••") === 0) return IT.toast("Вставьте ключ целиком", "warn"); IT.api.setKey(v); IT.toast(IT.icon("check") + " Ключ сохранён на устройстве", "ok"); return IT.render(); }
       if (e.target.closest("[data-delkey]")) { IT.api.setKey(""); IT.toast("Ключ удалён", "ok"); return IT.render(); }
       if (e.target.closest("[data-testkey]")) { IT.toast("Проверяю…"); return IT.aiJSON('Ответь JSON {"ok": true}').then(function () { IT.toast(IT.icon("check") + " ИИ подключён и работает", "ok"); }).catch(function (er) { IT.toast(IT.aiErrorText(er), "warn"); }); }
@@ -65,6 +71,35 @@
       if (e.target.closest("[data-placement]")) { IT.go("practice"); setTimeout(function () { var b2 = IT.$('[data-p="placement"]'); if (b2) b2.click(); }, 50); }
     };
   };
+  function cloudCard() {
+    var C = IT.cloud;
+    if (!C) return "";
+    var h = "<h3>" + IT.icon("globe") + " Аккаунт и Telegram-бот</h3>";
+    if (!C.signedIn()) {
+      return h + '<p class="sm muted">Войдите через Google: прогресс будет сохраняться в облаке и одинаково открываться на телефоне и компьютере, а Telegram-бот начнёт давать задания по пройденным урокам и слова на повторение из вашего словаря.</p>' +
+        '<button class="btn gbtn" data-gsignin><svg viewBox="0 0 48 48" width="20" height="20" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.2C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 2.9-2.2 5.4-4.7 7.1l7.6 5.9c4.4-4.1 6.9-10.1 6.9-17.5z"/><path fill="#FBBC05" d="M10.6 28.5c-.5-1.4-.8-2.9-.8-4.5s.3-3.1.8-4.5l-7.9-6.2C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.9-6.2z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.2 0-11.5-4.1-13.4-9.8l-7.9 6.2C6.6 42.6 14.6 48 24 48z"/></svg> Войти через Google</button>';
+    }
+    var u = C.user || {}, st = C.status;
+    var stTxt = st === "synced" ? IT.icon("check") + " Синхронизировано" + (C.lastSync ? " · " + new Date(C.lastSync).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }) : "") : st === "syncing" ? "Синхронизация…" : st === "error" ? "⚠️ Нет связи с облаком — прогресс сохранён на устройстве" : "";
+    h += '<div class="acc-row">' + (u.picture ? '<img class="acc-ava" src="' + esc(u.picture) + '" alt="" referrerpolicy="no-referrer">' : '<span class="acc-ava">' + esc((u.name || u.email || "?").slice(0, 1).toUpperCase()) + "</span>") +
+      '<div class="grow"><b>' + esc(u.name || "Аккаунт Google") + '</b><div class="xs muted">' + esc(u.email || "") + '</div><div class="xs ' + (st === "error" ? "warn-t" : "ok-t") + '">' + stTxt + "</div></div></div>" +
+      '<div class="row gap wrap mt-s"><button class="btn ghost sm" data-gsync>' + IT.icon("refresh") + ' Синхронизировать</button><button class="link sm" data-gsignout>Выйти</button></div>';
+    var b = C.bot || {};
+    h += '<h4 class="mt">' + IT.icon("chat") + " Telegram-бот" + (b.username ? ' <a class="xs" href="https://t.me/' + esc(b.username) + '" target="_blank" rel="noopener">@' + esc(b.username) + "</a>" : "") + "</h4>";
+    if (b.linked) {
+      var s = b.stats || {};
+      h += '<p class="sm ok-t">' + IT.icon("check") + " Подключён" + (b.tgName ? " (" + esc(b.tgName) + ")" : "") + "</p>" +
+        '<div class="bot-stats"><div><b>' + (s.done || 0) + '</b><span>заданий</span></div><div><b>' + (s.xp || 0) + '</b><span>XP в боте</span></div><div><b>' + (s.streak || 0) + '</b><span>дней подряд</span></div><div><b>' + (s.say ? Math.round(s.sayScore / s.say) : 0) + '</b><span>балл произн.</span></div></div>' +
+        (b.weak && b.weak.length ? '<p class="xs muted mt-s">Трудные для произношения: ' + esc(b.weak.slice(0, 8).join(", ")) + "</p>" : "") +
+        '<p class="xs muted">Бот даёт задания по пройденным здесь урокам и повторяет слова из вашего словаря; ответы из бота засчитываются в интервальное повторение.</p>' +
+        '<div class="row gap wrap mt-s">' + (b.username ? '<a class="btn primary sm" href="https://t.me/' + esc(b.username) + '" target="_blank" rel="noopener">Открыть бота</a>' : "") + '<button class="link sm" data-tgunlink>Отключить</button></div>';
+    } else {
+      h += '<p class="sm muted">Свяжите бота с приложением: он будет брать слова и фразы из пройденных уроков, напоминать о повторении и разбирать произношение по голосовым.</p><button class="btn primary" data-tglink>' + IT.icon("plus") + " Подключить Telegram-бота</button>";
+    }
+    return h;
+  }
+  IT.updateCloudCard = function () { var el = IT.$(".cloud-card"); if (el) el.innerHTML = cloudCard(); };
+
   function appCard() {
     var inClaude = IT.api.inClaude(), key = IT.api.key();
     var h = '<div class="card app-card"><h3>' + IT.icon("globe") + ' Приложение на телефоне</h3>';
@@ -74,7 +109,7 @@
       h += '<h4 class="mt">' + IT.icon("sparkles") + ' ИИ: преподаватель, переводчик, разбор видео</h4><p class="sm muted">Вне claude.ai ИИ работает через Anthropic API. Нужен ваш ключ из console.anthropic.com (оплата по факту использования). Ключ хранится только на этом устройстве и отправляется только на api.anthropic.com.</p>' +
         '<div class="row gap wrap"><input class="key-in" type="password" data-apikey placeholder="sk-ant-…" value="' + (key ? "••••••••" + IT.esc(key.slice(-4)) : "") + '" autocomplete="off"><button class="btn ghost sm" data-savekey>Сохранить</button>' + (key ? '<button class="btn ghost sm" data-testkey>Проверить</button><button class="link sm danger-t" data-delkey>Удалить ключ</button>' : "") + "</div>" +
         '<label class="sm vsel mt-s">Модель <select data-model>' + [["claude-sonnet-5-5", "Sonnet — лучше качество"], ["claude-haiku-5-5", "Haiku — быстрее и дешевле"]].map(function (m) { return '<option value="' + m[0] + '"' + (IT.api.model() === m[0] ? " selected" : "") + ">" + m[1] + "</option>"; }).join("") + "</select></label>" +
-        '<p class="xs muted mt-s">Прогресс хранится на телефоне. Чтобы перенести его с claude.ai или на другое устройство, используйте «Экспорт» и «Импорт» выше.</p>';
+        '<p class="xs muted mt-s">' + (IT.cloud && IT.cloud.signedIn() ? "Прогресс синхронизируется через аккаунт Google." : "Прогресс хранится на этом устройстве. Чтобы он был доступен везде, войдите через Google (карточка «Аккаунт и Telegram-бот»).") + "</p>";
     }
     return h + "</div>";
   }

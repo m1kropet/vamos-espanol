@@ -62,6 +62,12 @@
       var self = this;
       clearTimeout(this._t);
       this._t = setTimeout(function () { self.pushRemote(); }, 2500);
+      this.emit("saved");
+    },
+    /** Заменить прогресс версией из облака (без отправки обратно) */
+    replace: function (st) {
+      this.state = merge(fresh(), st);
+      try { localStorage.setItem(LS_KEY, JSON.stringify(this.state)); } catch (e) { }
     },
     _writing: false, _again: false,
     pushRemote: function () {

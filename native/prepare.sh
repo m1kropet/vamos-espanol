@@ -27,3 +27,7 @@ grep -q RECORD_AUDIO "$MAN" || sed -i 's#<uses-permission android:name="android.
 # Портретная ориентация
 sed -i 's#android:name=".MainActivity"#android:name=".MainActivity"\n            android:screenOrientation="portrait"#' "$MAN"
 grep -n "RECORD_AUDIO\|TTS_SERVICE\|screenOrientation" "$MAN"
+
+# Возврат в приложение после входа через Google: ссылки vamos://auth
+grep -q 'android:scheme="vamos"' "$MAN" || sed -i '0,/<\/activity>/s##            <intent-filter android:autoVerify="false">\n                <action android:name="android.intent.action.VIEW" />\n                <category android:name="android.intent.category.DEFAULT" />\n                <category android:name="android.intent.category.BROWSABLE" />\n                <data android:scheme="vamos" android:host="auth" />\n            </intent-filter>\n        </activity>#' "$MAN"
+grep -n 'scheme="vamos"' "$MAN"
