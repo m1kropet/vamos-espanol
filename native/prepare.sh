@@ -68,3 +68,23 @@ GRADLE
 # плагин обновлений требует Android 6.0+ (minSdk 23)
 sed -i -E 's/minSdkVersion = [0-9]+/minSdkVersion = 23/' android/variables.gradle
 grep -n "minSdkVersion" android/variables.gradle
+
+# Крупный системный шрифт: ограничиваем масштаб текста в приложении 130%, чтобы вёрстка не ломалась
+MA=android/app/src/main/java/io/github/m1kropet/vamos/MainActivity.java
+cat > "$MA" <<'JAVA'
+package io.github.m1kropet.vamos;
+
+import android.webkit.WebSettings;
+import com.getcapacitor.BridgeActivity;
+
+public class MainActivity extends BridgeActivity {
+    @Override
+    public void onResume() {
+        super.onResume();
+        try {
+            WebSettings s = getBridge().getWebView().getSettings();
+            if (s.getTextZoom() > 130) s.setTextZoom(130);
+        } catch (Exception ignored) {}
+    }
+}
+JAVA

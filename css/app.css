@@ -734,3 +734,33 @@ a.btn { text-decoration: none; }
 .upd-bar { height: 8px; border-radius: 6px; background: var(--line); overflow: hidden; margin-top: .6rem; }
 .upd-bar i { display: block; height: 100%; width: 5%; background: var(--terra); transition: width .3s; }
 .upd .row.end { justify-content: center; }
+
+/* Крупный шрифт в системе (Android «Размер шрифта») и длинные слова: ничего не вылезает за края */
+main, .card, .modal, .overlay, .sheet { overflow-wrap: break-word; }
+@media (max-width: 600px) { main, .modal, .overlay { -webkit-hyphens: auto; hyphens: auto; } .btn, .chip, h1, h2 { -webkit-hyphens: manual; hyphens: manual; } }
+input, textarea, select { min-width: 0; max-width: 100%; }
+.btn { max-width: 100%; }
+.row > *, .grid > * { min-width: 0; }
+@media (max-width: 600px) {
+  .btn { white-space: normal; text-align: center; line-height: 1.2; }
+  .topbar { gap: .4rem; }
+  .topbar .brand { min-width: 0; flex-shrink: 1; overflow: hidden; }
+  .topbar .brand b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .top-stats { flex-shrink: 0; gap: .3rem; }
+  .botnav a, .botnav button { min-width: 0; }
+  .botnav a span, .botnav button span { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; padding: 0 2px; }
+  .view-dictionary .page-head > div:last-child { flex-wrap: wrap; }
+  .view-dictionary .page-head > div:last-child .btn { flex: 1 1 calc(50% - .4rem); min-width: 0; }
+  .ach b, .ach small { overflow-wrap: anywhere; }
+}
+@media (max-width: 400px) {
+  .top-stats .chip.ghost { display: none; } /* статистика доступна через «Ещё» */
+}
+.chip.soft { white-space: normal; max-width: 100%; height: auto; min-height: 1.8em; line-height: 1.25; }
+
+@media (max-width: 420px) {
+  /* кнопки рядом не помещаются при крупном шрифте — ставим их друг под другом */
+  .row.gap.wrap > .btn.sm { flex: 1 1 100%; }
+  .tutor-tabs button { font-size: .85rem; padding-left: .4rem; padding-right: .4rem; }
+  .tutor-tabs button .ic { display: none; }
+}
