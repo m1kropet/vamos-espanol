@@ -14,10 +14,15 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      # Значения попадают в окружение следующих шагов через GITHUB_ENV (см. «Проверка секретов»)
+      S_CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      S_CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      S_TG: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      S_ANTHROPIC: ${{ secrets.ANTHROPIC_API_KEY }}
+      # секреты под любыми другими именами — распознаются по формату
+      EXTRA_S0: ${{ secrets.VASSAGO_ES_BOT }}
+      EXTRA_S1: ${{ secrets.VASSAGO1_ES_BOT }}
+      EXTRA_S2: ${{ secrets.VASSAGO2_ES_BOT }}
     defaults:
       run:
         working-directory: bot
@@ -36,6 +41,29 @@ jobs:
       - name: Проверка секретов
         id: check
         run: |
+          CLOUDFLARE_API_TOKEN="$S_CF_TOKEN"; CLOUDFLARE_ACCOUNT_ID="$S_CF_ACCOUNT"; TELEGRAM_BOT_TOKEN="$S_TG"; ANTHROPIC_API_KEY="$S_ANTHROPIC"
+          # распознаём ключи, сохранённые под другими именами, по их виду
+          for v in "$EXTRA_S0" "$EXTRA_S1" "$EXTRA_S2"; do
+            v=$(printf '%s' "$v" | tr -d '[:space:]')
+            [ -z "$v" ] && continue
+            if printf '%s' "$v" | grep -Eq '^[0-9]{6,}:[A-Za-z0-9_-]{30,}$'; then
+              [ -z "$TELEGRAM_BOT_TOKEN" ] && TELEGRAM_BOT_TOKEN="$v" && echo "Найден токен Telegram"
+            elif printf '%s' "$v" | grep -Eq '^[0-9a-f]{32}$'; then
+              [ -z "$CLOUDFLARE_ACCOUNT_ID" ] && CLOUDFLARE_ACCOUNT_ID="$v" && echo "Найден Account ID"
+            elif printf '%s' "$v" | grep -Eq '^sk-ant-'; then
+              [ -z "$ANTHROPIC_API_KEY" ] && ANTHROPIC_API_KEY="$v" && echo "Найден ключ Anthropic"
+            elif printf '%s' "$v" | grep -Eq '^[A-Za-z0-9_-]{35,}$'; then
+              [ -z "$CLOUDFLARE_API_TOKEN" ] && CLOUDFLARE_API_TOKEN="$v" && echo "Найден токен Cloudflare"
+            else
+              echo "::warning::Один из секретов не похож ни на один ключ (проверьте, что скопирован целиком)."
+            fi
+          done
+          {
+            echo "CLOUDFLARE_API_TOKEN=$CLOUDFLARE_API_TOKEN"
+            echo "CLOUDFLARE_ACCOUNT_ID=$CLOUDFLARE_ACCOUNT_ID"
+            echo "TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN"
+            echo "ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY"
+          } >> "$GITHUB_ENV"
           missing=""
           [ -z "$CLOUDFLARE_API_TOKEN" ] && missing="$missing CLOUDFLARE_API_TOKEN"
           [ -z "$CLOUDFLARE_ACCOUNT_ID" ] && missing="$missing CLOUDFLARE_ACCOUNT_ID"
