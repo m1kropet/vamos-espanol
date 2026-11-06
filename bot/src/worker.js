@@ -7,7 +7,7 @@ import { makeExercise, randomType, DAILY_PLAN, render, hint, checkText, checkCho
 import { chatReply, opener, TOPICS } from "./chat.js";
 import { handleCloud, redeemLink, getAppState, summarize, pushEvents } from "./cloud.js";
 
-const VERSION = "1.0";
+const VERSION = "1.1";
 const MENU = {
   keyboard: [
     [{ text: "🎯 Упражнение" }, { text: "🎙 Произношение" }],
