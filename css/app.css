@@ -764,3 +764,20 @@ input, textarea, select { min-width: 0; max-width: 100%; }
   .tutor-tabs button { font-size: .85rem; padding-left: .4rem; padding-right: .4rem; }
   .tutor-tabs button .ic { display: none; }
 }
+
+/* Без «раздувания» текста браузером Android (font boosting) */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+/* Путь на телефоне: компактнее заголовки и подписи */
+@media (max-width: 600px) {
+  .hero h1 { font-size: 1.45rem; line-height: 1.2; }
+  .hero .eyebrow { font-size: .72rem; }
+  .hero p { font-size: .92rem; }
+  .level-head h2 { font-size: 1.15rem; }
+  .unit-banner h3 { font-size: 1.1rem; line-height: 1.2; }
+  .unit-banner p.sm { font-size: .8rem; }
+  .node-lbl { font-size: .78rem; }
+}
+.unit-banner .unit-txt h3, .unit-banner .unit-txt .eyebrow { padding-right: 3.4rem; }
+/* баннер юнита растёт по содержимому, если текст крупный */
+.unit-banner { height: auto; min-height: 132px; display: flex; }
+.unit-banner .unit-txt { position: relative; inset: auto; flex: 1; min-height: 132px; }
