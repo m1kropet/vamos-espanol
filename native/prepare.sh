@@ -42,3 +42,14 @@ grep -nE "versionCode|versionName" "$GR"
 # Постоянный ключ подписи: новая версия ставится поверх старой без удаления
 mkdir -p "$HOME/.android"
 cp debug.keystore "$HOME/.android/debug.keystore"
+
+# Совместимость с Capacitor 6 (compileSdk 34): фиксируем версию WorkManager, которую тянет плагин обновлений
+grep -q "androidx.work:work-runtime" "$GR" || cat >> "$GR" <<'GRADLE'
+
+configurations.all {
+    resolutionStrategy {
+        force 'androidx.work:work-runtime:2.9.1'
+        force 'androidx.work:work-runtime-ktx:2.9.1'
+    }
+}
+GRADLE
