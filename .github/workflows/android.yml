@@ -27,7 +27,15 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Проверить версию
+        run: |
+          V=$(node -e 'console.log(require("./version.json").version)')
+          grep -q "IT.VERSION = \"$V\"" js/version.js || { echo "::error::js/version.js не совпадает с version.json ($V)"; exit 1; }
+          echo "VER=$V" >> "$GITHUB_ENV"
+
       - name: Подготовить Android-проект
+        env:
+          VERSION_CODE: ${{ github.run_number }}
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick >/dev/null
           bash native/prepare.sh
@@ -38,6 +46,11 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon -q
           cp app/build/outputs/apk/debug/app-debug.apk ../../Vamos.apk
+          # обновление интерфейса «по воздуху» для уже установленных приложений
+          cd ../www && zip -qr "../../web-$VER.zip" . && cd -
+          ls -la ../../Vamos.apk ../../web-$VER.zip
+          # подпись постоянным ключом
+          $ANDROID_HOME/build-tools/$(ls $ANDROID_HOME/build-tools | sort -V | tail -1)/apksigner verify --print-certs ../../Vamos.apk | head -3
 
       - uses: actions/upload-artifact@v4
         with:
@@ -51,7 +64,10 @@ jobs:
           name: "¡Vamos! — Android"
           body: |
             Скачайте **Vamos.apk** на телефон и откройте файл, чтобы установить.
+            Дальше приложение обновляется само: при новой версии появится уведомление.
             Если Android спросит — разрешите установку из этого источника.
             Сборка: ${{ github.sha }}
-          files: Vamos.apk
+          files: |
+            Vamos.apk
+            web-${{ env.VER }}.zip
           make_latest: true

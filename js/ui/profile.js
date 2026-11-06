@@ -25,6 +25,7 @@
       '<p class="muted xs">' + IT.icon("speaker") + " " + esc(voice) + "</p></div>";
     html += '<div class="card"><h3>' + IT.icon("refresh") + " " + t("data") + '</h3><p class="sm">' + IT.icon("globe") + " " + esc(sync) + '</p><p class="muted xs">' + t("dataNote") + '</p><div class="row gap wrap mt-s"><button class="btn ghost sm" data-export>' + t("exportBtn") + '</button><button class="btn ghost sm" data-import>' + t("importBtn") + '</button><button class="btn ghost sm" data-placement>' + t("pPlacement") + '</button><button class="btn danger sm" data-reset>' + t("resetBtn") + "</button></div>" +
       '<h3 class="mt">' + IT.icon("sparkles") + " " + t("connections") + '</h3><div class="conn"><p class="sm"><b>' + t("connAI") + '</b> — <span class="ai-st muted">' + t("aiChecking") + '</span></p><p class="muted xs">' + t("connAINote") + '</p><p class="sm"><b>' + t("connVoice") + "</b> — " + (IT.audio.available() ? t("on") : t("off")) + '</p><p class="muted xs">' + t("connVoiceNote") + '</p><p class="sm"><b>' + t("connRec") + "</b> — " + (IT.audio.recognitionSupported() ? t("connRecMaybe") : t("off")) + '</p><p class="muted xs">' + t("connRecNote") + "</p></div></div></div>";
+    if (IT.update) html += '<div class="card upd-card">' + IT.update.card() + "</div>";
     html += appCard();
     html += '<div class="card"><h3>' + IT.icon("trophy") + " " + t("achievements") + " · " + got + "/" + IT.ACH.length + '</h3><div class="ach-grid">' + IT.ACH.map(function (a) {
       var g = IT.achGot(a);
@@ -59,6 +60,8 @@
         };
       }
       if (e.target.closest("[data-install]")) return IT.pwa.install();
+      if (e.target.closest("[data-upd-check]")) return IT.update.check(true);
+      if (e.target.closest("[data-upd-now]")) return IT.update.announce(true);
       if (e.target.closest("[data-gsignin]")) return IT.cloud.signIn();
       if (e.target.closest("[data-gsignout]")) return IT.confirm("Выйти из аккаунта Google? Прогресс останется на этом устройстве.", "Выйти", function () { IT.cloud.signOut(); });
       if (e.target.closest("[data-gsync]")) { IT.toast("Синхронизирую…"); return IT.cloud.push(true).then(function () { return IT.cloud.refreshBot(); }).then(function (n) { IT.toast(IT.icon("check") + " Синхронизировано" + (n ? " · из бота: " + n + " повтор." : ""), "ok"); }); }

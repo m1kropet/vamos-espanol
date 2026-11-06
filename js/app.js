@@ -13,6 +13,7 @@
     if (!S.state.profile.onboarded) IT.onboarding();
     S.initRemote();
     if (IT.cloud) IT.cloud.init();
+    if (IT.update) IT.update.init();
     S.on(function (ev) {
       if (ev === "remote-loaded") IT.applyOverrides();
       if (ev === "remote-loaded" && S.state.profile.onboarded && IT.$("#overlay .onb")) IT.closeOverlay();

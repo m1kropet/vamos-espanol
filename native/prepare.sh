@@ -3,7 +3,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 rm -rf www && mkdir -p www
-cp -r ../index.html ../css ../js ../icons ../manifest.webmanifest www/
+cp -r ../index.html ../css ../js ../icons ../manifest.webmanifest ../version.json www/
 npm install --no-audit --no-fund
 [ -d android ] || npx cap add android
 npx cap sync android
@@ -31,3 +31,14 @@ grep -n "RECORD_AUDIO\|TTS_SERVICE\|screenOrientation" "$MAN"
 # Возврат в приложение после входа через Google: ссылки vamos://auth
 grep -q 'android:scheme="vamos"' "$MAN" || sed -i '0,/<\/activity>/s##            <intent-filter android:autoVerify="false">\n                <action android:name="android.intent.action.VIEW" />\n                <category android:name="android.intent.category.DEFAULT" />\n                <category android:name="android.intent.category.BROWSABLE" />\n                <data android:scheme="vamos" android:host="auth" />\n            </intent-filter>\n        </activity>#' "$MAN"
 grep -n 'scheme="vamos"' "$MAN"
+
+# Версия сборки: versionName из version.json (поле apk), versionCode растёт с каждой сборкой
+APK_VER=$(node -e 'console.log(require("../version.json").apk)')
+CODE=${VERSION_CODE:-$(date +%s | cut -c1-9)}
+GR=android/app/build.gradle
+sed -i -E "s/versionCode [0-9]+/versionCode $CODE/; s/versionName \"[^\"]*\"/versionName \"$APK_VER\"/" "$GR"
+grep -nE "versionCode|versionName" "$GR"
+
+# Постоянный ключ подписи: новая версия ставится поверх старой без удаления
+mkdir -p "$HOME/.android"
+cp debug.keystore "$HOME/.android/debug.keystore"

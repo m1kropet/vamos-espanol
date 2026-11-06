@@ -2,6 +2,20 @@
   "appId": "io.github.m1kropet.vamos",
   "appName": "¡Vamos!",
   "webDir": "www",
-  "android": { "allowMixedContent": false },
-  "server": { "androidScheme": "https" }
+  "android": {
+    "allowMixedContent": false
+  },
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "CapacitorUpdater": {
+      "autoUpdate": false,
+      "statsUrl": "",
+      "appReadyTimeout": 15000,
+      "autoDeleteFailed": true,
+      "autoDeletePrevious": true,
+      "resetWhenUpdate": true
+    }
+  }
 }
