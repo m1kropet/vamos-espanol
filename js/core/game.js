@@ -199,6 +199,9 @@
     pronunciacion: "Произношение", saludos: "Приветствия", ser: "Глагол ser", estar: "Глагол estar", usted: "Tú и usted", genero: "Род существительных",
     plural: "Множественное число", articulos: "Артикли", pronombres: "Местоимения", tener: "Tener и hay", numeros: "Числа", hora: "Время",
     presente: "Настоящее время", irregulares: "Неправильные глаголы", comida: "Еда и бар", adjetivos: "Прилагательные", posesivos: "Притяжательные",
-    gustar: "Глагол gustar", preposiciones: "Предлоги", pasado: "Прошедшее время", reflexivos: "Возвратные глаголы", futuro: "Будущее время", lessico: "Лексика"
+    gustar: "Глагол gustar", preposiciones: "Предлоги", pasado: "Прошедшее время", reflexivos: "Возвратные глаголы", futuro: "Будущее время", lessico: "Лексика",
+    imperfecto: "Pretérito imperfecto", gerundio: "Estar + gerundio и перифразы", comparativos: "Сравнения", complementos: "Местоимения-дополнения",
+    compras: "Покупки и одежда", salud: "Здоровье", imperativo: "Повелительное наклонение", tiempo: "Погода и путешествия", porpara: "Por и para",
+    condicional: "Condicional и вежливость", casa: "Дом", trabajo: "Работа"
   };
 })(window.IT);

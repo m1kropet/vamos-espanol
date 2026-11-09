@@ -11,7 +11,13 @@ IT.placement = [
   ["6:45 — это…", ["Son las siete menos cuarto.", "Son las seis menos cuarto.", "Es la siete y cuarto."], 0],
   ["Hoy ___ mucho. (trabajar, yo, pretérito perfecto)", ["he trabajado", "trabajé ayer", "hemos trabajo"], 0],
   ["Ayer yo ___ al cine.", ["fui", "fue", "he ido"], 0],
-  ["Mañana ___ más tiempo. (tener, yo)", ["tendré", "teneré", "tengo tenido"], 0]
+  ["Mañana ___ más tiempo. (tener, yo)", ["tendré", "teneré", "tengo tenido"], 0],
+  ["Ayer ellos me ___ la verdad. (decir)", ["dijeron", "dijieron", "decieron"], 0],
+  ["De niño yo ___ en un pueblo. (vivir)", ["vivía", "viví ayer", "vivo"], 0],
+  ["«Я только что пришёл»:", ["Acabo de llegar.", "Acabo llegar.", "Termino a llegar."], 0],
+  ["Madrid es ___ grande que Málaga.", ["más", "tan", "muy"], 0],
+  ["— ¿Le diste el libro a Ana? — Sí, ___ di.", ["se lo", "le lo", "lo le"], 0],
+  ["Вежливая просьба: «___ ayudarme?»", ["¿Podría", "¿Puedo", "¿Podré"], 0]
 ];
 
 /* Звуки для тренажёра произношения */

@@ -199,5 +199,128 @@ IT.dialogues = [
       gloss: [["un cafecito", "кофеёк (уменьшительное -ito очень любят в Лат. Америке)"]], tip: "" },
     { npc: "Ya te la traigo. ¡Gracias, che!", ru: "Сейчас принесу. Спасибо, дружище!" }
   ]
+},
+{
+  id: "tienda", level: "A2", unlock: "a2u8l2", scene: "market", voice: "es-ES",
+  t: "Покупки в Мадриде", ti: "En una tienda de ropa",
+  place: "Madrid, tienda en la Gran Vía",
+  char: { name: "Carmen", role: "продавщица", color: "#b4456b" },
+  steps: [
+    { npc: "¡Hola! ¿Te puedo ayudar en algo?", ru: "Привет! Тебе чем-нибудь помочь?", task: "Скажите, что ищете куртку.",
+      accept: [["busco", "quería", "quiero", "necesito"], ["chaqueta"]], model: "Sí, busco una chaqueta.", opts: ["Sí, busco una chaqueta.", "Sí, soy una chaqueta.", "No, tengo chaqueta años."],
+      gloss: [["¿Te puedo ayudar?", "Тебе помочь?"]], tip: "Busco… / Quería… — ищу…" },
+    { npc: "Claro. Tenemos estas de aquí, están rebajadas. ¿Qué talla usas?", ru: "Конечно. Вот эти, они со скидкой. Какой у тебя размер?", task: "Назовите размер (Uso la talla…).",
+      accept: [["talla", "uso", "la m", "la s", "la l"]], model: "Uso la talla M.", opts: ["Uso la talla M.", "Soy la talla M.", "Tengo M años."],
+      gloss: [["rebajadas", "со скидкой"], ["la talla", "размер"]], tip: "" },
+    { npc: "Toma, esta es la M. ¿Te la quieres probar?", ru: "Держи, это M. Хочешь примерить?", task: "Согласитесь и спросите, где примерочные.",
+      accept: [["dónde", "donde"], ["probador", "probadores"]], model: "Sí, ¿dónde están los probadores?", opts: ["Sí, ¿dónde están los probadores?", "Sí, ¿dónde son probadores?", "No, me pruebo nada."],
+      gloss: [["probarse", "примерять"]], tip: "Примерочные — los probadores." },
+    { npc: "Al fondo, a la derecha. ¿Qué tal te queda?", ru: "В глубине, справа. Ну как сидит?", task: "Скажите, что она мала, и попросите размер побольше.",
+      accept: [["pequeña", "pequeño", "grande", "más grande", "otra talla"]], model: "Me queda pequeña. ¿Tienes una talla más grande?", opts: ["Me queda pequeña. ¿Tienes una talla más grande?", "Me quedo pequeño de talla.", "Queda me pequeña más."],
+      gloss: [["al fondo", "в глубине"], ["¿Qué tal te queda?", "Как сидит?"]], tip: "quedar как gustar: me queda pequeña." },
+    { npc: "Aquí tienes la L. Te queda genial, ¿eh?", ru: "Вот L. Сидит отлично, правда?", task: "Скажите, что берёте, и спросите цену.",
+      accept: [["llevo", "la compro", "me la quedo"], ["cuánto", "cuanto", "precio"]], model: "Sí, me la llevo. ¿Cuánto es?", opts: ["Sí, me la llevo. ¿Cuánto es?", "Sí, la llevo puesta mañana.", "Sí, ¿cuántos años es?"],
+      gloss: [["genial", "отлично"]], tip: "Me la llevo — беру её (la chaqueta)." },
+    { npc: "Con la rebaja son cuarenta y cinco euros. ¿Efectivo o tarjeta?", ru: "Со скидкой сорок пять евро. Наличные или карта?", task: "Скажите, что заплатите картой.",
+      accept: [["tarjeta"]], model: "Con tarjeta, por favor.", opts: ["Con tarjeta, por favor.", "En tarjeta soy.", "Por tarjeta para ti."],
+      gloss: [["efectivo", "наличные"]], tip: "pagar con tarjeta." },
+    { npc: "¡Perfecto! Aquí tienes el tique. Si no te convence, tienes treinta días para devolverla.", ru: "Отлично! Вот чек. Если передумаешь, есть 30 дней, чтобы вернуть." }
+  ]
+},
+{
+  id: "farmacia", level: "A2", unlock: "a2u9l2", scene: "valencia", voice: "es-ES",
+  t: "В аптеке в Валенсии", ti: "En la farmacia",
+  place: "Valencia, farmacia del barrio",
+  char: { name: "Vicente", role: "фармацевт", color: "#2f8f5b" },
+  steps: [
+    { npc: "Buenas tardes, ¿qué necesita?", ru: "Добрый день, что Вам нужно?", task: "Попросите что-нибудь от горла.",
+      accept: [["algo", "necesito", "quería", "tiene"], ["garganta"]], model: "¿Tiene algo para el dolor de garganta?", opts: ["¿Tiene algo para el dolor de garganta?", "¿Tiene algo contra mi garganta duele?", "Soy garganta, gracias."],
+      gloss: [["¿Qué necesita?", "Что Вам нужно?"]], tip: "algo para… — что-нибудь от…" },
+    { npc: "¿Desde cuándo le duele? ¿Tiene fiebre?", ru: "С какого времени болит? Есть температура?", task: "Скажите: со вчерашнего дня, температуры нет.",
+      accept: [["ayer", "dos días", "hace"], ["no tengo fiebre", "sin fiebre", "no"]], model: "Desde ayer. No, no tengo fiebre.", opts: ["Desde ayer. No, no tengo fiebre.", "Desde mañana. Soy fiebre.", "Ayer duele fiebre."],
+      gloss: [["¿Desde cuándo?", "С каких пор?"]], tip: "" },
+    { npc: "Vale. Le doy estas pastillas para chupar. ¿Es alérgico a algún medicamento?", ru: "Хорошо. Дам Вам эти рассасывающие таблетки. У Вас есть аллергия на лекарства?", task: "Скажите, что аллергии нет.",
+      accept: [["no"], ["alérgico", "alérgica", "alergia", "alergico", "alergica"]], model: "No, no soy alérgico a nada.", opts: ["No, no soy alérgico a nada.", "No, no estoy alergia.", "Sí, soy medicamento."],
+      gloss: [["chupar", "сосать, рассасывать"], ["el medicamento", "лекарство"]], tip: "Ser alérgico a…" },
+    { npc: "Perfecto. Tome una cada cuatro horas, como máximo seis al día.", ru: "Отлично. Принимайте по одной каждые четыре часа, не больше шести в день.", task: "Переспросите: каждые сколько часов?",
+      accept: [["cada"], ["horas", "cuánto", "cuanto"]], model: "Perdone, ¿cada cuántas horas?", opts: ["Perdone, ¿cada cuántas horas?", "Perdone, ¿qué hora es cada?", "¿Cuántas años tomo?"],
+      gloss: [["como máximo", "максимум"], ["al día", "в день"]], tip: "" },
+    { npc: "Cada cuatro horas. Y beba mucha agua, y nada de bebidas frías.", ru: "Каждые четыре часа. И пейте много воды, и никаких холодных напитков.", task: "Поблагодарите и спросите, сколько стоит.",
+      accept: [["gracias"], ["cuánto", "cuanto"]], model: "Muchas gracias. ¿Cuánto es?", opts: ["Muchas gracias. ¿Cuánto es?", "De nada. ¿Cuánto eres?", "Gracias por agua fría."],
+      gloss: [["nada de…", "никаких…"]], tip: "" },
+    { npc: "Son seis euros con cincuenta. ¡Que se mejore!", ru: "Шесть евро пятьдесят. Выздоравливайте!" }
+  ]
+},
+{
+  id: "quedar", level: "A2", unlock: "a2u12l2", scene: "barcelona", voice: "es-ES",
+  t: "Звонок другу: договориться о встрече", ti: "¿Quedamos?",
+  place: "Barcelona, por teléfono",
+  char: { name: "Núria", role: "подруга из Барселоны", color: "#d0662f" },
+  steps: [
+    { npc: "¿Sí? ¿Diga?", ru: "Да? Алло?", task: "Поздоровайтесь и спросите, как дела.",
+      accept: [["hola", "buenas"], ["qué tal", "que tal", "cómo estás", "como estas"]], model: "¡Hola, Núria! ¿Qué tal?", opts: ["¡Hola, Núria! ¿Qué tal?", "¿Diga usted?", "Hola, soy Diga."],
+      gloss: [["¿Diga?", "Алло? (Испания)"]], tip: "" },
+    { npc: "¡Hombre! ¡Qué sorpresa! Muy bien, ¿y tú?", ru: "О, привет! Какой сюрприз! Отлично, а ты?", task: "Скажите, что хорошо, и предложите встретиться в субботу.",
+      accept: [["bien"], ["quedamos", "te apetece", "quedar", "nos vemos"]], model: "Muy bien. Oye, ¿quedamos el sábado?", opts: ["Muy bien. Oye, ¿quedamos el sábado?", "Bien. ¿Encontramos en sábado?", "Bien, sábado fue."],
+      gloss: [["¡Hombre!", "О! (дружеское восклицание)"]], tip: "¿Quedamos…? — встретимся?" },
+    { npc: "El sábado no puedo, tengo una boda. ¿Qué tal el domingo?", ru: "В субботу не могу, у меня свадьба. Как насчёт воскресенья?", task: "Согласитесь и предложите пойти на пляж.",
+      accept: [["vale", "perfecto", "sí", "claro", "genial"], ["playa"]], model: "¡Vale! ¿Te apetece ir a la playa?", opts: ["¡Vale! ¿Te apetece ir a la playa?", "Vale, ¿te apeteces playa?", "No, domingo es boda."],
+      gloss: [["la boda", "свадьба"]], tip: "¿Te apetece + инфинитив?" },
+    { npc: "¡Me encantaría! Si hace buen tiempo, claro. ¿A qué hora quedamos?", ru: "С удовольствием! Если будет хорошая погода, конечно. Во сколько встречаемся?", task: "Предложите встретиться в 11 у метро.",
+      accept: [["once", "11"], ["metro", "estación"]], model: "A las once en la salida del metro Barceloneta.", opts: ["A las once en la salida del metro Barceloneta.", "En las once al metro es.", "Once años en el metro."],
+      gloss: [["si hace buen tiempo", "если будет хорошая погода"]], tip: "a las + время, en + место." },
+    { npc: "Perfecto. Llevo yo unos bocadillos. ¿Llevas tú la sombrilla?", ru: "Отлично. Я возьму бутерброды. А ты возьмёшь зонт от солнца?", task: "Согласитесь.",
+      accept: [["sí", "vale", "claro", "por supuesto", "la llevo"]], model: "¡Claro, la llevo yo!", opts: ["¡Claro, la llevo yo!", "Claro, lo llevo la sombrilla.", "No llevo yo sombrilla de mí."],
+      gloss: [["el bocadillo", "бутерброд (в багете)"], ["la sombrilla", "пляжный зонт"]], tip: "la sombrilla → la llevo." },
+    { npc: "¡Genial! Pues hasta el domingo. ¡Un beso!", ru: "Супер! Тогда до воскресенья. Целую!" }
+  ]
+},
+{
+  id: "departamento", level: "A2", unlock: "a2u13l1", scene: "buenosaires", voice: "es-AR",
+  t: "Снять квартиру в Буэнос-Айресе", ti: "Alquilar un departamento",
+  place: "Buenos Aires, departamento en Palermo",
+  char: { name: "Gustavo", role: "хозяин квартиры", color: "#3b6ea8" },
+  steps: [
+    { npc: "¡Hola! ¿Vos sos la persona que llamó por el departamento?", ru: "Привет! Это ты звонил(а) насчёт квартиры?", task: "Подтвердите и представьтесь.",
+      accept: [["sí", "soy"]], model: "Sí, soy yo. Me llamo Kolya, encantado.", opts: ["Sí, soy yo. Me llamo Kolya, encantado.", "Sí, soy departamento.", "No, sos vos."],
+      gloss: [["vos sos", "ты (есть) — аргентинское voseo"]], tip: "" },
+    { npc: "Pasá, pasá. Mirá, este es el living. Es muy luminoso.", ru: "Проходи, проходи. Смотри, это гостиная. Она очень светлая.", task: "Спросите, сколько спален.",
+      accept: [["cuántos", "cuantos", "cuántas", "cuantas"], ["dormitorio", "dormitorios", "habitaciones", "cuartos"]], model: "¿Cuántos dormitorios tiene?", opts: ["¿Cuántos dormitorios tiene?", "¿Cuántos años tiene el living?", "¿Dónde es dormitorio?"],
+      gloss: [["pasá / mirá", "проходи / смотри (voseo)"], ["el living", "гостиная (Аргентина)"]], tip: "" },
+    { npc: "Tiene dos, y un baño. Está amueblado: cama, armario, heladera…", ru: "Две, и одна ванная. С мебелью: кровать, шкаф, холодильник…", task: "Спросите, сколько стоит аренда в месяц.",
+      accept: [["cuánto", "cuanto"], ["alquiler", "mes", "cuesta"]], model: "¿Cuánto es el alquiler al mes?", opts: ["¿Cuánto es el alquiler al mes?", "¿Cuántos meses es alquiler?", "¿Cuánto eres al mes?"],
+      gloss: [["la heladera", "холодильник (Аргентина)"]], tip: "" },
+    { npc: "Son quinientos dólares, con las expensas incluidas.", ru: "Пятьсот долларов, включая расходы на содержание дома.", task: "Спросите, есть ли рядом метро (в Буэнос-Айресе — el subte).",
+      accept: [["hay", "está", "queda"], ["subte", "metro"]], model: "¿Hay una estación de subte cerca?", opts: ["¿Hay una estación de subte cerca?", "¿Está subte una estación?", "¿Es cerca el subte de mí?"],
+      gloss: [["las expensas", "плата за содержание дома (Аргентина)"], ["el subte", "метро (Буэнос-Айрес)"]], tip: "" },
+    { npc: "Sí, a dos cuadras. ¿Y? ¿Te gusta?", ru: "Да, в двух кварталах. Ну что? Нравится?", task: "Скажите, что очень нравится и вы хотели бы снять её.",
+      accept: [["gusta", "encanta"], ["alquilar", "quedo", "quiero", "gustaría"]], model: "Me gusta mucho. Me gustaría alquilarlo.", opts: ["Me gusta mucho. Me gustaría alquilarlo.", "Me gusto mucho el departamento.", "Sí, quiero alquilar a mí."],
+      gloss: [["la cuadra", "квартал (Лат. Ам.)"]], tip: "Me gustaría + инфинитив." },
+    { npc: "¡Bárbaro! Mañana firmamos el contrato. ¡Bienvenido al barrio!", ru: "Супер! Завтра подпишем договор. Добро пожаловать в район!" }
+  ]
+},
+{
+  id: "entrevista", level: "A2", unlock: "a2u13l2", scene: "barcelona", voice: "es-ES",
+  t: "Собеседование на работу", ti: "Una entrevista de trabajo",
+  place: "Barcelona, oficina de una empresa",
+  char: { name: "Sra. Puig", role: "менеджер по персоналу", color: "#5b4b9a" },
+  steps: [
+    { npc: "Buenos días, siéntese, por favor. ¿Cómo está?", ru: "Доброе утро, садитесь, пожалуйста. Как Вы?", task: "Поблагодарите и ответьте вежливо.",
+      accept: [["gracias"], ["bien"]], model: "Muy bien, gracias. ¿Y usted?", opts: ["Muy bien, gracias. ¿Y usted?", "Bien, ¿y tú, tía?", "Gracias, soy sentado."],
+      gloss: [["siéntese", "садитесь (usted)"]], tip: "На собеседовании — usted." },
+    { npc: "Muy bien. Hábleme un poco de usted. ¿A qué se dedica?", ru: "Хорошо. Расскажите немного о себе. Чем Вы занимаетесь?", task: "Скажите, что вы программист и работаете уже три года.",
+      accept: [["programador", "programadora"], ["años", "llevo", "desde hace"]], model: "Soy programador y llevo tres años trabajando en una empresa de software.", opts: ["Soy programador y llevo tres años trabajando en una empresa de software.", "Soy un programador desde tres años.", "Me dedico de programar años."],
+      gloss: [["Hábleme de usted", "Расскажите о себе"]], tip: "Soy + профессия; llevo + время + герундий." },
+    { npc: "Interesante. ¿Por qué quiere este puesto?", ru: "Интересно. Почему Вы хотите эту должность?", task: "Ответьте, начав с «Porque…».",
+      accept: [["porque"]], model: "Porque me interesa mucho el proyecto y me gustaría vivir en Barcelona.", opts: ["Porque me interesa mucho el proyecto y me gustaría vivir en Barcelona.", "¿Por qué quiero el puesto?", "Para porque sí."],
+      gloss: [["el puesto", "должность"]], tip: "" },
+    { npc: "¿Qué idiomas habla?", ru: "На каких языках Вы говорите?", task: "Назовите языки.",
+      accept: [["hablo"], ["ruso", "inglés", "ingles", "español"]], model: "Hablo ruso, inglés y un poco de español.", opts: ["Hablo ruso, inglés y un poco de español.", "Soy ruso y inglés.", "Hablo de idiomas mucho."],
+      gloss: [["el idioma", "язык"]], tip: "" },
+    { npc: "Muy bien. Si le ofrecemos el puesto, ¿cuándo podría empezar?", ru: "Хорошо. Если мы предложим Вам должность, когда Вы могли бы начать?", task: "Скажите, что могли бы начать в следующем месяце.",
+      accept: [["podría", "podria", "puedo"], ["mes", "lunes", "semana"]], model: "Podría empezar el mes que viene.", opts: ["Podría empezar el mes que viene.", "Podré empezar el mes pasado.", "Empecé el mes que viene."],
+      gloss: [["el mes que viene", "в следующем месяце"]], tip: "Podría — вежливо." },
+    { npc: "Perfecto. Le llamaremos la próxima semana. ¡Muchas gracias por venir!", ru: "Отлично. Мы позвоним Вам на следующей неделе. Спасибо, что пришли!" }
+  ]
 }
 ];

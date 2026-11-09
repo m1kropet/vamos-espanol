@@ -8,7 +8,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
 const ctx = { IT: {}, console };
 ctx.window = ctx;
 vm.createContext(ctx);
-for (const f of ["js/core/course.js", "js/data/a1-part1.js", "js/data/a1-part2.js", "js/data/a2.js", "js/data/dialogues.js", "js/data/extras.js", "js/data/word-examples.js"]) {
+for (const f of ["js/core/course.js", "js/data/a1-part1.js", "js/data/a1-part2.js", "js/data/a2.js", "js/data/a2-part2.js", "js/data/a2-part3.js", "js/data/dialogues.js", "js/data/extras.js", "js/data/word-examples.js"]) {
   vm.runInContext(fs.readFileSync(path.join(root, f), "utf8"), ctx, { filename: f });
 }
 const IT = ctx.IT;

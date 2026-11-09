@@ -45,7 +45,7 @@
       if (p === "mixed") return IT.player.run({ kind: "mixed", title: t("pMixed"), items: IT.buildMixed(10), rebuild: function () { return IT.buildMixed(10); } });
       if (p === "placement") return IT.placementTest(function (unitIdx, score) {
         var cur = S.state.unlocked;
-        var msg = t("placementResult").replace("{s}", score).replace("{u}", IT.tt(IT.units[unitIdx]));
+        var msg = t("placementResult").replace("{s}", score).replace("{n}", IT.placement.length).replace("{u}", IT.tt(IT.units[unitIdx]));
         if (unitIdx > cur) {
           IT.confirm(msg + " " + t("placementOpen"), t("openUnits"), function () { S.state.unlocked = unitIdx; S.save(); IT.go("path"); });
         } else IT.modal('<h3 class="m-title">' + esc(msg) + '</h3><p class="muted">' + t("placementKeep") + '</p><button class="btn primary mt" data-close>OK</button>');
@@ -213,7 +213,7 @@
     function draw() {
       o.querySelector(".pl-bar i").style.width = Math.round(i / qs.length * 100) + "%";
       if (i >= qs.length) {
-        var u = score <= 2 ? 0 : score <= 4 ? 2 : score <= 6 ? 4 : score <= 8 ? 6 : score <= 10 ? 8 : 10;
+        var u = score <= 3 ? 0 : score <= 5 ? 2 : score <= 7 ? 4 : score <= 9 ? 6 : score <= 11 ? 8 : score <= 12 ? 10 : score <= 14 ? 12 : score <= 16 ? 15 : score <= 17 ? 18 : 21;
         u = Math.min(u, IT.units.length - 1);
         IT.closeOverlay(); onResult(u, score); return;
       }
