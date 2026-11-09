@@ -69,6 +69,7 @@
 
   /* ---------- Иконки ---------- */
   var P = {
+    pin: '<path d="M12 21s-6.5-5.6-6.5-10.5a6.5 6.5 0 1 1 13 0C18.5 15.4 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.3"/>',
     path: '<path d="M5 19c3-8 11-6 14-14"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="5" r="2"/>',
     practice: '<path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3"/><path d="M18 3v4h-4M6 21v-4h4"/>',
     chat: '<path d="M4 5h16v11H9l-5 4z"/>',
@@ -116,18 +117,18 @@
 
   /* ---------- Пейзажи испаноязычного мира (SVG) ---------- */
   var PAL = {
-    madrid: ["#f3c58e", "#f7e1bd", "#c98a5a"], plaza: ["#f4be86", "#fde8cf", "#b5603c"], toledo: ["#f0a87d", "#fde2c8", "#a7774f"],
-    barcelona: ["#9fc7d9", "#f2efe4", "#c4664a"], valencia: ["#f7c98f", "#fff0d2", "#d08a3f"], sevilla: ["#f2b27c", "#fbe0c0", "#c76a3a"],
-    granada: ["#f0a07c", "#fadcc3", "#b0553b"], salamanca: ["#f6c79a", "#fdebd3", "#c99a55"], mexico: ["#f5b26b", "#fde3bf", "#8e5a3c"],
-    buenosaires: ["#a9c7e3", "#eef3f6", "#7a8796"], cafe: ["#f6c79a", "#fdebd3", "#9b5b3c"], market: ["#f7cf8f", "#fff0d2", "#c06a3a"],
-    station: ["#b8c6d6", "#eef1f2", "#7a6a5a"], beach: ["#8ec5df", "#f3efe2", "#d39a5c"]
+    madrid: ["#6FB6FF", "#D6ECFF", "#FF7A1A"], plaza: ["#7CC4FF", "#E3F3FF", "#D93F9C"], toledo: ["#FFB36B", "#FFE7C7", "#C2571B"],
+    barcelona: ["#4FC3E8", "#E0F7FF", "#2C64F5"], valencia: ["#7DD3FC", "#E8F8FF", "#FF7A1A"], sevilla: ["#FFA94D", "#FFE8C9", "#D93F9C"],
+    granada: ["#FF9F7A", "#FFE3D6", "#B5368A"], salamanca: ["#FFC857", "#FFF1CC", "#C77A00"], mexico: ["#FF8FB1", "#FFE4EE", "#17B26A"],
+    buenosaires: ["#7FB3FF", "#E6F0FF", "#7B5CF5"], cafe: ["#FFC27A", "#FFF0DB", "#C2571B"], market: ["#FFD166", "#FFF6D9", "#D93F9C"],
+    station: ["#9DB8FF", "#EAF0FF", "#2C64F5"], beach: ["#5CC8F0", "#E6FAFF", "#FF7A1A"]
   };
   var BLD = {
     arches: function (x, y, w, h, c) { var s = '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="' + c + '"/>'; var n = Math.floor(w / 14); for (var r = 0; r < 2; r++) for (var i = 0; i < n; i++) s += '<path d="M' + (x + 4 + i * 14) + " " + (y + 14 + r * 18) + "v-6a3.5 3.5 0 0 1 7 0v6z\" fill=\"rgba(0,0,0,.22)\"/>"; return s; },
     dome: function (x, y, w, h, c) { return '<rect x="' + x + '" y="' + (y + h * .45) + '" width="' + w + '" height="' + (h * .55) + '" fill="' + c + '"/><path d="M' + (x + w * .1) + " " + (y + h * .47) + "Q" + (x + w / 2) + " " + (y - h * .1) + " " + (x + w * .9) + " " + (y + h * .47) + 'z" fill="' + c + '" opacity=".92"/><rect x="' + (x + w / 2 - 2) + '" y="' + (y + h * .02) + '" width="4" height="' + (h * .12) + '" fill="' + c + '"/>'; },
     tower: function (x, y, w, h, c) { return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="' + c + '"/><path d="M' + (x - 2) + " " + y + "h" + (w + 4) + "l-" + (w / 2 + 2) + " -" + (w * .7) + 'z" fill="' + c + '"/><rect x="' + (x + w / 2 - 2) + '" y="' + (y + 8) + '" width="4" height="7" fill="rgba(0,0,0,.25)"/>'; },
-    houses: function (x, y, w, h, c) { var s = "", cols = ["#e9b383", "#d9895f", "#f1cf9b", "#c96b4b", "#e7a46f"], n = Math.floor(w / 18); for (var i = 0; i < n; i++) { var hh = h * (.6 + ((i * 37) % 10) / 25); s += '<rect x="' + (x + i * 18) + '" y="' + (y + h - hh) + '" width="18" height="' + hh + '" fill="' + cols[i % 5] + '"/><rect x="' + (x + i * 18 + 5) + '" y="' + (y + h - hh + 6) + '" width="4" height="6" fill="rgba(0,0,0,.2)"/><rect x="' + (x + i * 18 + 11) + '" y="' + (y + h - hh + 6) + '" width="4" height="6" fill="rgba(0,0,0,.2)"/>'; } return s; },
-    cypress: function (x, y, w, h) { return '<path d="M' + x + " " + (y + h) + "C" + (x - w) + " " + (y + h * .5) + " " + (x - 2) + " " + y + " " + x + " " + y + "C" + (x + 2) + " " + y + " " + (x + w) + " " + (y + h * .5) + " " + x + " " + (y + h) + 'z" fill="#4f6b3a"/>'; },
+    houses: function (x, y, w, h, c) { var s = "", cols = ["#FFB800", "#FF7A1A", "#FF5C7A", "#2C64F5", "#17B26A"], n = Math.floor(w / 18); for (var i = 0; i < n; i++) { var hh = h * (.6 + ((i * 37) % 10) / 25); s += '<rect x="' + (x + i * 18) + '" y="' + (y + h - hh) + '" width="18" height="' + hh + '" fill="' + cols[i % 5] + '"/><rect x="' + (x + i * 18 + 5) + '" y="' + (y + h - hh + 6) + '" width="4" height="6" fill="rgba(0,0,0,.2)"/><rect x="' + (x + i * 18 + 11) + '" y="' + (y + h - hh + 6) + '" width="4" height="6" fill="rgba(0,0,0,.2)"/>'; } return s; },
+    cypress: function (x, y, w, h) { return '<path d="M' + x + " " + (y + h) + "C" + (x - w) + " " + (y + h * .5) + " " + (x - 2) + " " + y + " " + x + " " + y + "C" + (x + 2) + " " + y + " " + (x + w) + " " + (y + h * .5) + " " + x + " " + (y + h) + 'z" fill="#17904A"/>'; },
     water: function (x, y, w, h) { return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="#5b93ad"/><path d="M' + x + " " + (y + 8) + "q10 -4 20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0" + '" stroke="rgba(255,255,255,.5)" fill="none" stroke-width="2"/>'; },
     gondola: function (x, y) { return '<path d="M' + x + " " + y + "q40 14 80 0q-6 10 -40 10t-40 -10z\" fill=\"#2a1f1a\"/><path d=\"M" + (x + 66) + " " + (y - 2) + "l4 -26\" stroke=\"#2a1f1a\" stroke-width=\"2\"/>"; },
     volcano: function (x, y, w, h) { return '<path d="M' + x + " " + (y + h) + "L" + (x + w * .42) + " " + y + "h" + (w * .16) + "L" + (x + w) + " " + (y + h) + 'z" fill="#7d8b99"/><path d="M' + (x + w * .45) + " " + (y - 4) + "q6 -12 14 -6" + '" stroke="#ccc" fill="none" stroke-width="3" opacity=".7"/>'; },
@@ -159,7 +160,7 @@
     var pal = PAL[id] || PAL.madrid, items = SCN[id] || SCN.madrid, gid = "g" + Math.random().toString(36).slice(2, 7);
     var body = items.map(function (it) { return BLD[it[0]](it[1], it[2], it[3], it[4], pal[2]); }).join("");
     return '<svg class="scene ' + (cls || "") + '" viewBox="0 0 420 120" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + pal[0] + '"/><stop offset="1" stop-color="' + pal[1] + '"/></linearGradient></defs>' +
-      '<rect width="420" height="120" fill="url(#' + gid + ')"/><circle cx="350" cy="30" r="16" fill="#fff4d6" opacity=".85"/><path d="M0 100 Q80 80 160 96 T420 92 V120 H0z" fill="#9aa86a" opacity=".55"/>' + body + "</svg>";
+      '<rect width="420" height="120" fill="url(#' + gid + ')"/><circle cx="350" cy="30" r="16" fill="#FFE066"/><path d="M0 100 Q80 80 160 96 T420 92 V120 H0z" fill="#3CC47A" opacity=".55"/>' + body + "</svg>";
   };
 
   /* ---------- Модальные окна ---------- */
@@ -193,7 +194,7 @@
   IT.confetti = function () {
     var c = document.createElement("canvas"); c.className = "confetti"; document.body.appendChild(c);
     var ctx = c.getContext("2d"), W = c.width = innerWidth, H = c.height = innerHeight;
-    var cols = ["#c2572e", "#6f7d3a", "#d9a441", "#2f6f8f", "#f2efe6", "#b8434f"];
+    var cols = ["#2C64F5", "#17B26A", "#FFB800", "#D93F9C", "#FF7A1A", "#12A9C4"];
     var ps = []; for (var i = 0; i < 140; i++) ps.push({ x: W / 2 + (Math.random() - .5) * 200, y: H * .35, vx: (Math.random() - .5) * 14, vy: -Math.random() * 14 - 4, r: Math.random() * 6 + 3, c: cols[i % cols.length], a: Math.random() * 6 });
     var t = 0;
     (function frame() {

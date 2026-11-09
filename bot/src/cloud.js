@@ -34,9 +34,9 @@ function b64urlJSON(part) {
 function page(title, body) {
   return new Response(
     `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title>
-<style>body{font-family:system-ui,sans-serif;background:#f6efe4;color:#2b2118;display:grid;place-items:center;min-height:100vh;margin:0;padding:20px;box-sizing:border-box}
-.c{background:#fffaf2;border-radius:20px;padding:28px;max-width:420px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.08)}
-a.b{display:inline-block;margin-top:16px;background:#c4572c;color:#fff;text-decoration:none;padding:14px 22px;border-radius:14px;font-weight:700}
+<style>body{font-family:system-ui,sans-serif;background:#E4ECFF;color:#1E2240;display:grid;place-items:center;min-height:100vh;margin:0;padding:20px;box-sizing:border-box}
+.c{background:#fff;border:2px solid #E3E6F0;border-radius:24px;padding:28px;max-width:420px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.08)}
+a.b{display:inline-block;margin-top:16px;background:#2C64F5;color:#fff;text-decoration:none;padding:14px 22px;border-radius:16px;font-weight:800;box-shadow:0 4px 0 #1D47C2}
 p{color:#6b5a4a}</style></head><body><div class="c">${body}</div></body></html>`,
     { headers: { "content-type": "text/html; charset=utf-8" } }
   );

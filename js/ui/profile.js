@@ -127,7 +127,7 @@
     var MAP = { never: 0, few: 2, simple: 4, talk: 7 };
     function draw() {
       if (step === 0) {
-        box.innerHTML = IT.scene("madrid", "onb-scene") + '<h1>¡Bienvenido! <span class="muted">·</span> Добро пожаловать!</h1><p class="lead">' + t("onbWelcome") + '</p><div class="onb-feats">' +
+        box.innerHTML = '<div class="onb-hero">' + IT.bunting(12) + IT.mascot("hi", 120) + '</div><h1>¡Bienvenido! Добро пожаловать!</h1><p class="lead">' + t("onbWelcome") + '</p><div class="onb-feats">' +
           [["book", t("onbF1")], ["chat", t("onbF2")], ["refresh", t("onbF3")], ["tutor", t("onbF4")]].map(function (f) { return '<div class="feat">' + IT.icon(f[0]) + "<span>" + f[1] + "</span></div>"; }).join("") +
           '</div><p class="muted sm">' + t("uiLang") + ':</p><div>' + seg("ui", [["ru", "Русский"], ["es", "Español"]], p.ui) + '</div><button class="btn primary big mt" data-n>' + t("onbStart") + " " + IT.icon("chevron") + "</button>";
       } else if (step === 1) {
@@ -136,7 +136,7 @@
         box.innerHTML = '<h2>' + t("onbGoalQ") + '</h2><p class="muted">' + t("onbGoalSub") + '</p><div class="onb-opts goals">' + [[10, t("g10")], [15, t("g15")], [20, t("g20")], [30, t("g30")]].map(function (g) { return '<button class="onb-opt' + (p.goal === g[0] ? " on" : "") + '" data-g="' + g[0] + '"><span class="e">' + g[0] + "</span><span><b>" + g[0] + " " + t("minPerDay") + "</b><small>" + g[1] + "</small></span></button>"; }).join("") + '</div><div class="row gap between mt"><button class="btn ghost" data-b>' + IT.icon("back") + " " + t("back") + '</button><button class="btn primary" data-n>' + t("next") + "</button></div>";
       } else {
         var u = IT.units[st.unlocked] || IT.units[0];
-        box.innerHTML = IT.scene(u.scene, "onb-scene") + "<h2>" + t("onbPlan") + '</h2><div class="plan">' +
+        box.innerHTML = '<div class="onb-hero">' + IT.mascot("cheer", 110) + "</div><h2>" + t("onbPlan") + '</h2><div class="plan">' +
           '<div class="plan-row">' + IT.icon("path") + "<span>" + t("onbPlanStart") + " <b>" + esc(IT.tt(u)) + "</b> (" + u.level + ", " + esc(u.city) + ")</span></div>" +
           '<div class="plan-row">' + IT.icon("clock") + "<span>" + t("onbPlanGoal").replace("{n}", p.goal) + "</span></div>" +
           '<div class="plan-row">' + IT.icon("book") + "<span>" + t("onbPlanFlow") + "</span></div>" +

@@ -226,7 +226,7 @@
       S.save();
       if (acc >= 80) { IT.confetti(); IT.audio.sfx("win"); }
       var head = acc === 100 ? "¡Perfecto!" : acc >= 80 ? "¡Fantástico!" : acc >= 60 ? "¡Bien!" : "¡Ánimo!";
-      var html = '<div class="result"><div class="res-scene">' + IT.scene((cfg.lesson && cfg.lesson.unit.scene) || (cfg.unit && cfg.unit.scene) || "plaza") + '</div><h1>' + head + '</h1><p class="muted">' + esc(cfg.title || "") + "</p>" +
+      var html = '<div class="result"><div class="res-hero">' + IT.bunting(12) + IT.mascot(acc >= 60 ? "cheer" : "sad", 120) + '</div><h1>' + head + '</h1><p class="muted">' + esc(cfg.title || "") + "</p>" +
         '<div class="res-tiles"><div class="tile xp">' + IT.icon("bolt") + "<b>+" + xp + "</b><span>XP</span></div><div class=\"tile\">" + IT.icon("target") + "<b>" + acc + "%</b><span>" + t("accuracy") + '</span></div><div class="tile">' + IT.icon("clock") + "<b>" + fmtTime(secs) + "</b><span>" + t("time") + '</span></div><div class="tile">' + IT.icon("flame") + "<b>" + stats.max + "</b><span>" + t("bestCombo") + "</span></div></div>" + extra +
         (perfect && cfg.kind === "lesson" ? '<p class="chip gold">' + IT.icon("sparkles") + " " + t("perfectBonus") + "</p>" : "") +
         (newWords.length ? '<div class="res-sec"><h4>' + t("wordsAdded") + " (" + newWords.length + ')</h4><div class="chips">' + newWords.map(function (w) { return '<button class="chip soft" data-say="' + esc(w.it) + '">' + esc(w.it) + " — " + esc(w.ru) + "</button>"; }).join("") + "</div></div>" : "") +

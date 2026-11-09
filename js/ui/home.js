@@ -30,16 +30,25 @@
     var hour = new Date().getHours();
     var greet = hour < 13 ? "¡Buenos días" : hour < 20 ? "¡Buenas tardes" : "¡Buenas noches";
     var cefr = IT.prog.cefr();
-    var cont = "";
+    var cont = "", line = "", nextTitle = "", nextKicker = "";
     if (resume && IT.lessonById[resume.id] && resume.kind === "lesson") {
       var rl = IT.lessonById[resume.id];
-      cont = '<button class="btn primary big" data-resume>' + IT.icon("play") + " " + t("resumeLesson") + "</button><span class=\"muted sm\">" + esc(IT.tt(rl)) + " · " + t("step") + " " + (resume.idx + 1) + "/" + resume.items.length + "</span>";
+      cont = '<button class="btn primary big wide" data-resume>' + IT.icon("play") + " " + t("resumeLesson") + "</button>";
+      line = t("heroResume").replace("{a}", resume.idx + 1).replace("{b}", resume.items.length);
+      nextTitle = IT.tt(rl); nextKicker = t("unit") + " " + (rl.unit.index + 1);
     } else if (next) {
-      cont = '<button class="btn primary big" data-next>' + IT.icon("play") + " " + (next.kind === "test" ? t("startTest") : (IT.lessonsDoneCount() ? t("continue") : t("startLearning"))) + '</button><span class="muted sm">' + esc(next.kind === "test" ? t("unitTest") + ": " + IT.tt(next.unit) : IT.tt(next.lesson)) + "</span>";
-    } else cont = '<span class="muted">' + t("allDone") + "</span>";
-    var heroScene = (next ? (next.unit || next.lesson.unit).scene : "madrid");
+      cont = '<button class="btn primary big wide" data-next>' + IT.icon("play") + " " + (next.kind === "test" ? t("startTest") : (IT.lessonsDoneCount() ? t("continue") : t("startLearning"))) + "</button>";
+      line = next.kind === "test" ? t("heroTest") : IT.lessonsDoneCount() ? t("heroHi2") : t("heroHi1");
+      nextTitle = next.kind === "test" ? t("unitTest") + ": " + IT.tt(next.unit) : IT.tt(next.lesson);
+      nextKicker = t("unit") + " " + ((next.unit || next.lesson.unit).index + 1);
+    } else { line = t("heroDone"); cont = '<button class="btn primary big wide" data-go="practice">' + IT.icon("refresh") + " " + t("navPractice") + "</button>"; }
+    var done = IT.lessonsDoneCount(), all = IT.allLessons.length;
     var html = '<div class="home-grid"><div class="home-main">' +
-      '<section class="hero">' + IT.scene(heroScene, "hero-scene") + '<div class="hero-in"><p class="eyebrow">' + greet + '!</p><h1>' + t("heroTitle") + '</h1><p class="muted">' + t("yourLevel") + " <b>" + cefr + "</b> · " + IT.lessonsDoneCount() + "/" + IT.allLessons.length + " " + t("lessonsShort") + '</p><div class="row gap wrap mt">' + cont + "</div></div></section>";
+      '<section class="hero">' + IT.bunting(16) +
+      '<div class="hero-row"><div class="hero-mascot">' + IT.mascot(next || resume ? "hi" : "cheer", 104) + '</div><div class="speech"><b>' + greet + "!</b><span>" + esc(line) + "</span></div></div>" +
+      (nextTitle ? '<div class="hero-next"><span class="hero-k">' + esc(nextKicker) + "</span><h1>" + esc(nextTitle) + "</h1></div>" : "") +
+      '<div class="hero-cta">' + cont + "</div>" +
+      '<div class="hero-meta"><span class="lv-badge sm lv-' + cefr + '">' + cefr + '</span><div class="bar"><i style="width:' + Math.round(done / all * 100) + '%"></i></div><span>' + done + " " + t("lessonsOf") + " " + all + "</span></div></section>";
     html += '<div class="rail-mobile">' + IT.railHtml() + "</div>";
     // Карта по уровням
     IT.levels.forEach(function (L) {
@@ -72,7 +81,7 @@
 
   function unitHtml(u) {
     var open = IT.prog.unitOpen(u), pct = IT.prog.unitPct(u), next = IT.prog.next();
-    var h = '<div class="unit' + (open ? "" : " locked") + '"><div class="unit-banner">' + IT.scene(u.scene) + '<div class="unit-txt"><span class="eyebrow">' + IT.icon("path") + " " + esc(u.city) + " · " + t("unit") + " " + (u.index + 1) + '</span><h3>' + esc(IT.tt(u)) + '</h3><p class="sm">' + esc(u.d) + '</p></div><div class="unit-pct">' + (open ? pct + "%" : IT.icon("lock")) + "</div></div>";
+    var h = '<div class="unit' + (open ? "" : " locked") + '" style="' + IT.unitColor(u) + '"><div class="unit-head"><div class="grow"><div class="unit-k"><span>' + t("unit") + " " + (u.index + 1) + '</span><span class="unit-city">' + IT.icon("pin") + esc(u.city) + '</span></div><h3>' + esc(IT.tt(u)) + '</h3><p class="sm">' + esc(u.d) + '</p></div><div class="unit-pct">' + (open ? pct + "%" : IT.icon("lock")) + "</div></div>";
     h += '<div class="trail">';
     var nodes = u.lessons.map(function (l) { return { l: l }; }).concat([{ test: true }]);
     nodes.forEach(function (n, i) {
@@ -84,7 +93,7 @@
         var l = n.l, done = IT.prog.lessonDone(l.id), lo = IT.prog.lessonOpen(l), cur = next && next.kind === "lesson" && next.lesson === l;
         var best = S.state.lessons[l.id] ? S.state.lessons[l.id].best : 0;
         h += '<div class="node-wrap" style="--off:' + off + '"><button class="node ' + (done ? "done" : cur ? "current" : lo ? "open" : "lock") + '" data-lesson="' + l.id + '" aria-label="' + esc(IT.tt(l)) + '">' + (done ? IT.icon("check") : lo ? '<span class="num">' + (l.li + 1) + "</span>" : IT.icon("lock")) +
-          (done ? '<span class="stars">' + stars(best) + "</span>" : "") + "</button>" + (cur ? '<span class="node-tip">' + t("start") + "</span>" : "") + '<span class="node-lbl">' + esc(IT.tt(l)) + "</span></div>";
+          (done ? '<span class="stars">' + stars(best) + "</span>" : "") + "</button>" + (cur ? '<span class="node-tip">' + t("start") + "</span>" + '<span class="trail-mascot ' + (off > 0 ? "left" : "right") + '">' + IT.mascot("cheer", 78) + "</span>" : "") + '<span class="node-lbl">' + esc(IT.tt(l)) + "</span></div>";
       }
     });
     return h + "</div></div>";
@@ -93,7 +102,7 @@
 
   function lessonSheet(l) {
     var open = IT.prog.lessonOpen(l), rec = S.state.lessons[l.id];
-    var html = '<div class="sheet-head">' + IT.scene(l.unit.scene, "sheet-scene") + '</div><span class="eyebrow">' + esc(l.unit.city) + " · " + t("lesson") + " " + (l.li + 1) + '</span><h3 class="m-title">' + esc(IT.tt(l)) + '</h3><p class="muted">' + esc(l.goal) + "</p>" +
+    var html = '<div class="sheet-head">' + IT.scene(l.unit.scene, "sheet-scene") + '</div><span class="eyebrow">' + t("lesson") + " " + (l.li + 1) + ", " + esc(l.unit.city) + '</span><h3 class="m-title">' + esc(IT.tt(l)) + '</h3><p class="muted">' + esc(l.goal) + "</p>" +
       '<div class="row gap wrap sm mt-s"><span class="chip soft">' + IT.icon("book") + " " + l.th.length + " " + t("theoryParts") + '</span><span class="chip soft">' + IT.icon("pen") + " " + l.words.length + " " + t("newWords") + '</span><span class="chip soft">' + IT.icon("target") + " ~" + IT.buildLesson(l).length + " " + t("exercises") + "</span>" + (rec ? '<span class="chip ok">' + t("best") + ": " + rec.best + "%</span>" : "") + "</div>";
     if (!open) html += '<p class="lock-note">' + IT.icon("lock") + " " + t("lockedLesson") + "</p>";
     html += '<div class="row gap end mt wrap"><button class="btn ghost" data-theory>' + IT.icon("book") + " " + t("theory") + "</button>" + (open ? '<button class="btn primary" data-go-lesson>' + IT.icon("play") + " " + (rec ? t("repeat") : t("start")) + "</button>" : "") + "</div>";

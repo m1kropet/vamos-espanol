@@ -3,7 +3,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 rm -rf www && mkdir -p www
-cp -r ../index.html ../css ../js ../icons ../manifest.webmanifest ../version.json www/
+cp -r ../index.html ../css ../js ../icons ../fonts ../manifest.webmanifest ../version.json www/
 npm install --no-audit --no-fund
 [ -d android ] || npx cap add android
 npx cap sync android
@@ -19,7 +19,7 @@ for pair in mdpi:48 hdpi:72 xhdpi:96 xxhdpi:144 xxxhdpi:192; do
   rm -f "$RES/mipmap-$d/ic_launcher_foreground.png"
 done
 # Заставка: цвет фона приложения
-for f in $(find "$RES" -name 'splash.png'); do convert -size 512x512 xc:'#f6efe4' ../icons/icon-192.png -gravity center -composite "$f"; done
+for f in $(find "$RES" -name 'splash.png'); do convert -size 512x512 xc:'#FFFFFF' ../icons/icon-192.png -gravity center -composite "$f"; done
 
 # Разрешения: микрофон, интернет, сервисы речи
 MAN=android/app/src/main/AndroidManifest.xml

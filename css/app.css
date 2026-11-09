@@ -1,16 +1,18 @@
-/* Andiamo! — стили. Палитра: терракота, оливка, золото, венецианская лазурь на тёплой бумаге */
+/* ¡Vamos! — игровой стиль «Фиеста»: кобальт, нопаль, солнце, бугенвиллея; объёмные кнопки-плитки, талисман Нара */
+@font-face { font-family: "Nunito"; src: url("../fonts/nunito.woff") format("woff"); font-weight: 200 1000; font-display: swap; }
+@font-face { font-family: "Unbounded"; src: url("../fonts/unbounded.woff") format("woff"); font-weight: 200 900; font-display: swap; }
 :root {
-  --bg: #f6efe4; --bg2: #efe5d5; --surface: #fffaf2; --surface2: #fbf3e6; --ink: #2b2118; --muted: #7a6a5a; --line: #e6d9c5;
-  --terra: #c2572e; --terra-d: #9e4220; --terra-s: #f6dccd; --olive: #5f7a2e; --olive-s: #e3ebcf; --gold: #d49a2a; --gold-s: #f8e8c4;
-  --sky: #2f6f8f; --sky-s: #d6e7ef; --rose: #b8434f; --rose-s: #f6d9dc; --plum: #7a5c8a; --plum-s: #ebe0f0;
-  --shadow: 0 1px 2px rgba(60,40,20,.06), 0 6px 20px rgba(60,40,20,.07); --shadow-lg: 0 20px 60px rgba(40,25,10,.22);
-  --r: 16px; --r-s: 10px; --font: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif; --serif: "Fraunces", Georgia, serif;
+  --bg: #FFFFFF; --bg2: #F1F3FA; --surface: #FFFFFF; --surface2: #F7F8FC; --ink: #1E2240; --muted: #6A7093; --line: #E3E6F0; --edge: #D3D8E8;
+  --terra: #2C64F5; --terra-d: #1D47C2; --terra-s: #E4ECFF; --olive: #17B26A; --olive-d: #0F8A51; --olive-s: #DCF6E9; --gold: #FFB800; --gold-d: #D99400; --gold-s: #FFF3CC;
+  --sky: #12A9C4; --sky-s: #D8F4F9; --rose: #F0384E; --rose-d: #C2243A; --rose-s: #FFE2E6; --plum: #D93F9C; --plum-s: #FBE1F0; --orange: #FF7A1A; --orange-s: #FFE9D9;
+  --shadow: none; --shadow-lg: 0 24px 60px rgba(30,34,64,.25);
+  --r: 20px; --r-s: 12px; --font: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif; --serif: "Nunito", system-ui, sans-serif; --display: "Unbounded", "Nunito", system-ui, sans-serif;
 }
 [data-theme="dark"] {
-  --bg: #17120f; --bg2: #1e1814; --surface: #231c17; --surface2: #2a221c; --ink: #f2e8da; --muted: #a8988a; --line: #3a2f27;
-  --terra: #e2794c; --terra-d: #f09a72; --terra-s: #43281c; --olive: #a3b866; --olive-s: #2c3320; --gold: #e9b95a; --gold-s: #3e3220;
-  --sky: #6fb3d2; --sky-s: #1d3540; --rose: #e57a85; --rose-s: #43232a; --plum: #b598c4; --plum-s: #33283a;
-  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25); --shadow-lg: 0 20px 60px rgba(0,0,0,.5);
+  --bg: #121729; --bg2: #1B2238; --surface: #1A2136; --surface2: #20283F; --ink: #EEF1FF; --muted: #9AA3C7; --line: #2C3654; --edge: #0B0F1C;
+  --terra: #4D7DFF; --terra-d: #2C5BE0; --terra-s: #1D2B57; --olive: #2FCB7F; --olive-d: #1C9A5E; --olive-s: #133A2A; --gold: #FFC62E; --gold-d: #D99E00; --gold-s: #3A3215;
+  --sky: #2CC4DF; --sky-s: #123842; --rose: #FF5468; --rose-d: #D63549; --rose-s: #44202A; --plum: #F05BB2; --plum-s: #3E1B33; --orange: #FF8A33; --orange-s: #3F2614;
+  --shadow: none; --shadow-lg: 0 24px 60px rgba(0,0,0,.55);
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
@@ -781,3 +783,205 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 /* баннер юнита растёт по содержимому, если текст крупный */
 .unit-banner { height: auto; min-height: 132px; display: flex; }
 .unit-banner .unit-txt { position: relative; inset: auto; flex: 1; min-height: 132px; }
+
+/* ======================================================================
+   ИГРОВОЙ СТИЛЬ «ФИЕСТА»
+   Плитки с объёмным нижним краем вместо теней, яркие цвета юнитов, талисман Нара.
+   ====================================================================== */
+html, body { font-weight: 600; }
+h1, h2, h3, h4 { font-family: var(--display); font-weight: 700; letter-spacing: -.015em; line-height: 1.22; }
+h1 { font-size: clamp(1.4rem, 2.4vw, 1.9rem); } h2 { font-size: 1.25rem; } h3 { font-size: 1.05rem; } h4 { font-size: .95rem; }
+p, .muted { font-weight: 600; }
+a { color: var(--terra); }
+.eyebrow { text-transform: none; letter-spacing: 0; font-size: .85rem; font-weight: 800; }
+.lbl, .tbl th, .tile span, .situ, .stage-chip, .node-tip { text-transform: none; letter-spacing: 0; }
+:focus-visible { outline: 3px solid color-mix(in srgb, var(--terra) 55%, transparent); outline-offset: 2px; }
+
+/* плитки */
+.card { border: 2px solid var(--line); border-bottom-width: 4px; border-radius: var(--r); box-shadow: none; }
+.btn { border: 2px solid var(--line); border-bottom-width: 4px; background: var(--surface); color: var(--ink); border-radius: 16px; font-weight: 800; box-shadow: none; transition: transform .06s, filter .15s, border-width .06s; }
+.btn:active:not(:disabled) { transform: translateY(2px); border-bottom-width: 2px; margin-bottom: 2px; }
+.btn.primary { background: var(--terra); color: #fff; border-color: var(--terra); border-bottom-color: var(--terra-d); box-shadow: none; }
+.btn.success { background: var(--olive); color: #fff; border-color: var(--olive); border-bottom-color: var(--olive-d); box-shadow: none; }
+.btn.danger { background: var(--rose); color: #fff; border-color: var(--rose); border-bottom-color: var(--rose-d); box-shadow: none; }
+.btn.ghost { background: var(--surface); }
+.btn.ghost:hover:not(:disabled) { background: var(--surface2); }
+.btn:hover:not(:disabled) { filter: brightness(1.04); }
+.btn:disabled { opacity: 1; background: var(--bg2); color: var(--muted); border-color: var(--line); }
+.btn.big { padding: .95rem 1.5rem; font-size: 1.05rem; border-radius: 18px; }
+.btn.sm { border-radius: 12px; border-bottom-width: 3px; }
+.btn.wide { width: 100%; }
+.icon-btn { border-radius: 14px; }
+.chip { font-weight: 800; }
+.chip.flame { background: var(--orange-s); color: var(--orange); }
+.chip.xp, .chip.gold { background: var(--gold-s); color: color-mix(in srgb, var(--gold-d) 85%, var(--ink)); }
+.chip.ok { background: var(--olive-s); color: var(--olive-d); }
+.chip.on { background: var(--terra); color: #fff; }
+.badge.in { color: var(--terra); }
+.bar { height: 12px; background: var(--bg2); }
+.bar i { background: var(--olive); box-shadow: inset 0 -3px 0 rgba(0,0,0,.12), inset 0 3px 0 rgba(255,255,255,.28); }
+.bar.thin { height: 8px; }
+.seg { background: var(--bg2); border-radius: 14px; }
+.seg button { font-weight: 800; border-radius: 11px; }
+.seg button.on { box-shadow: 0 2px 0 var(--edge); }
+.tip, .rule { border-radius: 16px; }
+.spk { background: var(--sky-s); color: var(--sky); }
+.say-chip { border: 2px solid var(--line); border-radius: 10px; color: var(--sky); }
+.form input, .form select, textarea.code, .key-in, .vsel select { border-width: 2px; border-radius: 14px; }
+.search { border-width: 2px; border-radius: 16px; }
+
+/* каркас и навигация */
+.side { background: var(--surface); border-right: 2px solid var(--line); }
+.brand b { font-family: var(--display); font-size: 1.15rem; letter-spacing: -.02em; }
+.side-nav a { border: 2px solid transparent; font-weight: 800; color: var(--muted); }
+.side-nav a .ic { width: 1.5em; height: 1.5em; }
+.side-nav a:hover { background: var(--surface2); color: var(--ink); }
+.side-nav a.on { background: var(--terra-s); color: var(--terra); border-color: color-mix(in srgb, var(--terra) 45%, transparent); }
+.lvl-pill { border: 2px solid var(--line); border-bottom-width: 4px; border-radius: 16px; }
+@media (max-width: 900px) {
+  .topbar { background: var(--surface); border-bottom: 2px solid var(--line); backdrop-filter: none; }
+  .topbar .brand b { font-size: 1rem; }
+  .botnav { background: var(--surface); border-top: 2px solid var(--line); }
+  .botnav a, .botnav button { color: var(--muted); font-weight: 800; border: 2px solid transparent; }
+  .botnav a .ic, .botnav button .ic { width: 1.65em; height: 1.65em; }
+  .botnav a.on, .botnav button.on { color: var(--terra); background: var(--terra-s); border-color: color-mix(in srgb, var(--terra) 45%, transparent); }
+}
+
+/* главная: приветствие с Нарой */
+.hero { background: var(--terra-s); border: 2px solid color-mix(in srgb, var(--terra) 22%, var(--line)); border-bottom-width: 5px; border-radius: 26px; box-shadow: none; padding: 2.1rem 1.4rem 1.3rem; min-height: 0; overflow: hidden; }
+.hero .bunting { position: absolute; top: -2px; left: 0; width: 100%; height: 34px; }
+.hero-row { display: flex; align-items: flex-end; gap: .4rem; }
+.hero-mascot { flex: none; margin-bottom: -.3rem; }
+.hero-mascot .mascot { animation: bob 3s ease-in-out infinite; display: block; }
+.speech { position: relative; background: var(--surface); border: 2px solid var(--line); border-bottom-width: 4px; border-radius: 20px; padding: .75rem 1rem; margin-bottom: 1.6rem; display: flex; flex-direction: column; gap: .15rem; max-width: 420px; }
+.speech::before { content: ""; position: absolute; left: -11px; bottom: 16px; width: 18px; height: 18px; background: var(--surface); border-left: 2px solid var(--line); border-bottom: 2px solid var(--line); transform: rotate(45deg); border-radius: 0 0 0 4px; }
+.speech b { font-family: var(--display); font-size: 1.05rem; color: var(--terra); }
+.speech span { font-size: .95rem; }
+.hero-next { margin: 1rem 0 .9rem; }
+.hero-k { font-weight: 800; color: var(--terra); font-size: .9rem; }
+.hero-next h1 { margin: .15rem 0 0; font-size: clamp(1.25rem, 2.2vw, 1.6rem); }
+.hero-cta { max-width: 420px; }
+.hero-meta { display: flex; align-items: center; gap: .7rem; margin-top: 1rem; font-weight: 800; font-size: .9rem; color: var(--muted); max-width: 420px; }
+.hero-meta .bar { flex: 1; background: var(--surface); }
+.lv-badge { font-family: var(--display); border-radius: 14px; box-shadow: 0 4px 0 rgba(0,0,0,.18); }
+.lv-badge.sm { width: 38px; height: 34px; font-size: .78rem; border-radius: 11px; box-shadow: 0 3px 0 rgba(0,0,0,.18); }
+.lv-A1 { background: #17B26A; } .lv-A2 { background: #2C64F5; } .lv-B1 { background: #FF7A1A; } .lv-B2 { background: #D93F9C; } .lv-C1 { background: #7B5CF5; }
+@keyframes wave { 0%, 60%, 100% { transform: rotate(0); } 70% { transform: rotate(-14deg); } 85% { transform: rotate(10deg); } }
+.mascot .wave { transform-origin: 96px 66px; animation: wave 2.6s ease-in-out infinite; }
+.mascot.m-hi .wave + circle { transform-origin: 96px 66px; animation: wave 2.6s ease-in-out infinite; }
+
+/* панель целей */
+.ring-bg { stroke: var(--bg2); stroke-width: 9; } .ring-fg { stroke: var(--orange); stroke-width: 9; }
+.ring-lbl b { font-family: var(--display); font-size: .95rem; }
+.lvl-line .bar i { background: var(--gold); }
+.quest .q-ico { border-radius: 12px; border: 2px solid var(--line); background: var(--surface2); }
+.quest { border-top: 2px solid var(--bg2); }
+.weekly { background: var(--plum-s); border-color: color-mix(in srgb, var(--plum) 30%, var(--line)); }
+.weekly h4 .ic { color: var(--plum); } .weekly .bar { background: var(--surface); } .weekly .bar i { background: var(--plum); }
+
+/* карта: уровни, юниты, узлы */
+.level-head { background: var(--bg); }
+.level-head h2 { font-size: 1.1rem; }
+.unit { margin-bottom: 1.8rem; }
+.unit-head { display: flex; gap: .8rem; align-items: flex-start; background: var(--uc, var(--terra)); color: #fff; border-radius: 22px; padding: 1rem 1.15rem 1.05rem; box-shadow: 0 5px 0 var(--ucd, var(--terra-d)); }
+.unit-k { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; font-weight: 900; font-size: .85rem; opacity: .95; }
+.unit-city { display: inline-flex; align-items: center; gap: .2rem; background: rgba(255,255,255,.2); border-radius: 99px; padding: .05rem .55rem .05rem .35rem; font-weight: 800; }
+.unit-city .ic { width: 1em; height: 1em; }
+.unit-head h3 { color: #fff; margin: .3rem 0 .2rem; font-size: 1.1rem; }
+.unit-head p { color: rgba(255,255,255,.9); margin: 0; }
+.unit-head .unit-pct { position: static; flex: none; background: rgba(255,255,255,.95); color: var(--ucd, var(--terra-d)); font-weight: 900; border-radius: 14px; padding: .3rem .6rem; font-size: .85rem; }
+.unit.locked .unit-head { background: #B4BBD0; box-shadow: 0 5px 0 #9AA2BC; }
+[data-theme="dark"] .unit.locked .unit-head { background: #36405F; box-shadow: 0 5px 0 #232A42; }
+.unit.locked .unit-head .unit-pct { color: #7E86A3; }
+.trail::before { border-left: 4px dotted var(--line); }
+.node { width: 74px; height: 70px; font-family: var(--display); font-size: 1.35rem; }
+.node.done { background: var(--uc, var(--olive)); color: #fff; box-shadow: 0 6px 0 var(--ucd, var(--olive-d)); }
+.node.current { background: var(--uc, var(--terra)); color: #fff; box-shadow: 0 6px 0 var(--ucd, var(--terra-d)), 0 0 0 8px color-mix(in srgb, var(--uc, var(--terra)) 22%, transparent); }
+.node.open { background: var(--surface); color: var(--uc, var(--terra)); border: 3px solid var(--uc, var(--terra)); box-shadow: 0 6px 0 var(--edge); }
+.node.lock { background: var(--bg2); color: #A9AFC6; box-shadow: 0 6px 0 var(--edge); }
+.node.test { border-radius: 22px; }
+.node.test.done { background: var(--gold); box-shadow: 0 6px 0 var(--gold-d); }
+.node .stars { color: var(--gold); }
+.node-lbl { color: var(--ink); opacity: .7; font-weight: 800; }
+.node-tip { background: var(--surface); color: var(--uc, var(--terra)); border: 2px solid var(--line); border-bottom-width: 4px; font-weight: 900; font-size: .8rem; border-radius: 12px; padding: .25rem .65rem; top: -40px; }
+.node-tip::after { border-top-color: var(--line); bottom: -8px; }
+.trail-mascot { position: absolute; top: -10px; pointer-events: none; }
+.trail-mascot.left { right: calc(50% + 52px); } .trail-mascot.right { left: calc(50% + 52px); }
+.roadmap { background: var(--surface2); }
+
+/* окна и уведомления */
+.modal-back { background: rgba(18,23,41,.5); backdrop-filter: none; }
+.modal { border-radius: 26px; border: 2px solid var(--line); }
+.toast { border-radius: 16px; font-weight: 800; }
+.toast.gold { background: var(--gold); color: #3A2A00; } .toast.warn { background: var(--rose); }
+.big-badge { background: var(--orange); font-family: var(--display); box-shadow: 0 5px 0 #D35F06; border-radius: 22px; }
+.test-ico { background: var(--gold-s); color: var(--gold-d); }
+
+/* плеер уроков */
+.pl-bar { height: 16px; } .pl-bar i { background: var(--olive); box-shadow: inset 0 -4px 0 rgba(0,0,0,.12), inset 0 4px 0 rgba(255,255,255,.3); }
+.pl-foot { border-top: 2px solid var(--line); }
+.stage-chip { border-radius: 10px; font-size: .8rem; }
+.ex-q { font-family: var(--display); font-size: 1.2rem; }
+.opt, .mbtn, .tile-w, .onb-opt { border-radius: 16px; font-weight: 800; }
+.opt.sel, .mbtn.sel { border-color: var(--terra); background: var(--terra-s); }
+.opt .k { border-width: 2px; border-radius: 9px; font-weight: 900; }
+.prompt-word, .bubble-ru, .bubble-it, .fill-q, .fix-q, .th-card, .flash, .ex-card, .warn-card { border: 2px solid var(--line); border-bottom-width: 4px; box-shadow: none; }
+.fix-q { border-color: transparent; }
+.prompt-word b, .bubble-it, .bubble-ru.big, .fill-q, .fix-q, .ex-it, .cur-sub, .tr-text { font-family: var(--font); font-weight: 800; }
+.rv-it, .tr-word { font-family: var(--display); font-weight: 700; }
+.ans-input, .comp-row textarea { border-radius: 16px; }
+.play-big { border-radius: 30px; box-shadow: 0 6px 0 #0B8297; }
+.mic-btn { box-shadow: 0 6px 0 var(--terra-d); }
+.key { border-width: 2px; border-bottom-width: 3px; border-radius: 10px; }
+.pl-fb { border-top: 2px solid var(--line); }
+.pl-fb.ok { background: var(--olive-s); } .pl-fb.bad { background: var(--rose-s); }
+.fb-head { font-family: var(--display); font-size: 1.15rem; }
+.pl-fb.ok .fb-head { color: var(--olive-d); } .pl-fb.bad .fb-head { color: var(--rose-d); }
+[data-theme="dark"] .pl-fb.ok .fb-head { color: var(--olive); } [data-theme="dark"] .pl-fb.bad .fb-head { color: var(--rose); }
+.dots i.on { background: var(--terra); } .dots i.done { background: var(--olive); }
+.goal { border: 2px dashed var(--terra); }
+
+/* итоги урока и онбординг с Нарой */
+.res-hero, .onb-hero { position: relative; display: grid; place-items: end center; height: 156px; background: var(--terra-s); border-radius: 26px; margin-bottom: 1rem; overflow: hidden; padding-bottom: 4px; }
+.res-hero .bunting, .onb-hero .bunting { position: absolute; top: -2px; left: 0; width: 100%; height: 30px; }
+.res-hero .mascot { animation: pop .6s ease; }
+.tile { border-bottom-width: 4px; border-radius: 18px; } .tile b { font-family: var(--display); font-size: 1.15rem; }
+.tile.xp { border-color: var(--gold); background: var(--gold-s); } .tile .ic { color: var(--orange); }
+.mist { border: 2px solid var(--line); border-radius: 14px; }
+
+/* разделы */
+.pc-ico { border-radius: 16px; box-shadow: 0 3px 0 rgba(0,0,0,.08); }
+.c-terra .pc-ico { background: var(--terra-s); color: var(--terra); } .c-gold .pc-ico { background: var(--gold-s); color: var(--gold-d); }
+.weak { border-width: 2px; border-radius: 12px; }
+.wcard { border: 2px solid var(--line); border-bottom-width: 3px; border-radius: 16px; }
+.wcard:hover { border-color: var(--terra); }
+.str i.on { background: var(--olive); }
+.dlg-card { border-bottom-width: 4px; }
+.dlg-card:hover { transform: translateY(-2px); box-shadow: none; border-color: var(--terra); }
+.coach, .task, .tbub, .bub, .issue, .sample, .feat-row, .dl-res, .plan-row, .feat, .cues { border-width: 2px; }
+.task { background: var(--terra-s); color: var(--terra-d); }
+[data-theme="dark"] .task { color: var(--terra); }
+.stat-tile b { font-family: var(--display); font-size: 1.2rem; }
+.stat-tile .ic { color: var(--orange); }
+.ach { border: 2px solid var(--line); background: var(--surface2); }
+.ach.got { background: var(--gold-s); border-color: var(--gold); }
+.onb-opt.on { border-color: var(--terra); background: var(--terra-s); }
+.onb-opt .e { font-family: var(--display); color: var(--terra); }
+.feat .ic, .plan-row .ic { color: var(--terra); }
+.app-card { background: var(--surface); }
+.file-btn { border-width: 2px; border-radius: 14px; }
+@media (max-width: 600px) {
+  .hero { padding: 2rem 1rem 1.1rem; }
+  .hero-mascot .mascot { width: 84px; height: 84px; }
+  .speech { padding: .6rem .8rem; margin-bottom: 1.2rem; }
+  .speech b { font-size: .95rem; } .speech span { font-size: .88rem; }
+  .hero-next h1 { font-size: 1.2rem; }
+  .unit-head { padding: .9rem 1rem; }
+  .unit-head h3 { font-size: 1rem; }
+  .node { width: 68px; height: 64px; }
+  .trail-mascot .mascot { width: 64px; height: 64px; }
+  .trail-mascot.left { right: calc(50% + 44px); } .trail-mascot.right { left: calc(50% + 44px); }
+  h1 { font-size: 1.3rem; }
+}
+.goal-card .row .row { flex-wrap: wrap; }
+@media (max-width: 600px) { .tutor-head h1 { white-space: normal; font-size: 1.05rem; overflow-wrap: anywhere; } }
