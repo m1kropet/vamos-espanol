@@ -56,7 +56,7 @@
       var m = IT.modal('<div class="upd"><div class="upd-ico">' + IT.icon("sparkles") + '</div><h3 class="m-title">Доступно обновление ' + IT.esc(v.version) + "</h3>" +
         '<p class="muted sm">У вас версия ' + IT.esc(U.current) + ". " + (apk ? "Нужна новая сборка приложения — она скачается и установится поверх текущей, прогресс сохранится." : "Обновление займёт несколько секунд, прогресс сохранится.") + "</p>" +
         (notes ? '<ul class="upd-notes sm">' + notes + "</ul>" : "") +
-        '<div class="upd-bar" hidden><i></i></div>' +
+        '<div class="upd-bar" hidden><i></i></div><p class="sm upd-err" hidden></p>' +
         '<div class="row gap end mt"><button class="btn ghost" data-close>Позже</button><button class="btn primary" data-upd>' + IT.icon("refresh") + " " + (apk ? "Скачать и установить" : "Обновить") + "</button></div></div>");
       m.querySelector("[data-upd]").onclick = function () { U.apply(m); };
     },
@@ -80,23 +80,38 @@
     // Android: обновление интерфейса без переустановки (плагин @capgo/capacitor-updater)
     applyNativeWeb: function (m) {
       var CU = P().CapacitorUpdater;
-      if (!CU) { U.state = "apk"; return U.installApk(m); }
+      if (!CU || !CU.download) { U.state = "apk"; return U.installApk(m); }
       var v = U.remote.version;
-      var bar = m && m.querySelector(".upd-bar"), btn = m && m.querySelector("[data-upd]");
+      var bar = m && m.querySelector(".upd-bar"), btn = m && m.querySelector("[data-upd]"), note = m && m.querySelector(".upd-err");
       if (bar) bar.hidden = false;
+      if (note) note.hidden = true;
       if (btn) { btn.disabled = true; btn.textContent = "Скачиваю…"; }
-      var lst = CU.addListener ? CU.addListener("download", function (e) { if (bar && e && e.percent != null) bar.querySelector("i").style.width = e.percent + "%"; }) : null;
       U.state = "downloading"; U.emit();
       if (IT.store) IT.store.save();
       if (IT.cloud && IT.cloud.flush) IT.cloud.flush();
+      var lst = null;
+      try { lst = CU.addListener("download", function (e) { if (bar && e && e.percent != null) bar.querySelector("i").style.width = Math.max(5, e.percent) + "%"; }); } catch (e) { }
+      var finished = false;
+      var fail = function (msg) {
+        if (finished) return; finished = true;
+        U.state = "web"; U.emit();
+        if (bar) bar.hidden = true;
+        if (btn) { btn.disabled = false; btn.textContent = "Повторить"; }
+        if (note) {
+          note.hidden = false;
+          note.innerHTML = "Не получилось скачать обновление" + (msg ? " (" + IT.esc(String(msg).slice(0, 120)) + ")" : "") + '. Можно установить новую версию файлом — прогресс сохранится. <button class="link" data-upd-apk>Скачать установочный файл</button>';
+          note.querySelector("[data-upd-apk]").onclick = function () { U.installApk(m); };
+        }
+      };
+      var timer = setTimeout(function () { fail("нет ответа 90 с"); }, 90000);
       return CU.download({ url: REL + "web-" + v + ".zip", version: v }).then(function (bundle) {
+        if (finished) return;
+        finished = true; clearTimeout(timer);
         if (btn) btn.textContent = "Перезапуск…";
         return CU.set({ id: bundle.id }); // приложение перезапустится уже с новой версией
       }).catch(function (e) {
-        console.warn("OTA", e);
-        U.state = "web"; U.emit();
-        if (btn) { btn.disabled = false; btn.textContent = "Повторить"; }
-        IT.toast("Обновление ещё готовится на сервере — попробуйте через пару минут.", "warn");
+        clearTimeout(timer); console.warn("OTA", e);
+        fail(e && (e.message || e.errorMessage || e));
       }).then(function () { if (lst && lst.then) lst.then(function (h) { h && h.remove && h.remove(); }); });
     },
 
@@ -104,7 +119,7 @@
     installApk: function (m) {
       var url = REL + "Vamos.apk?v=" + encodeURIComponent((U.remote && U.remote.apk) || Date.now());
       if (m && m.close) m.close();
-      IT.modal('<h3 class="m-title">Установка новой версии</h3><ol class="sm upd-steps"><li>Сейчас начнётся загрузка файла <b>Vamos.apk</b> (~5 МБ).</li><li>Когда загрузка закончится, нажмите на уведомление <b>«Vamos.apk»</b> (или откройте его в «Загрузках»).</li><li>Нажмите <b>«Обновить»</b>. Прогресс и настройки сохранятся.</li></ol><p class="xs muted">Если Android спросит разрешение на установку из этого источника — разрешите один раз.</p><div class="row gap end mt"><button class="btn primary" data-close>Понятно</button></div>');
+      IT.modal('<h3 class="m-title">Установка новой версии</h3><ol class="sm upd-steps"><li>Сейчас начнётся загрузка файла <b>Vamos.apk</b> (~5 МБ).</li><li>Когда загрузка закончится, нажмите на уведомление <b>«Vamos.apk»</b> (или откройте его в «Загрузках»).</li><li>Нажмите <b>«Обновить»</b>. Прогресс и настройки сохранятся.</li></ol><p class="xs muted">Если Android спросит разрешение на установку из этого источника — разрешите один раз.</p><p class="xs muted">Если Android пишет «Приложение не установлено», у вас стоит самая первая сборка со старой подписью: войдите через Google (Профиль), удалите приложение и установите файл заново — прогресс вернётся после входа.</p><div class="row gap end mt"><button class="btn primary" data-close>Понятно</button></div>');
       if (P().Browser && P().Browser.open) P().Browser.open({ url: url });
       else window.open(url, "_blank");
     },
@@ -117,7 +132,7 @@
       var line = s === "checking" ? "Проверяю…" : s === "none" ? IT.icon("check") + " Установлена последняя версия" : (s === "web" || s === "apk") && v ? '<b class="ok-t">Доступна версия ' + IT.esc(v.version) + "</b>" : s === "downloading" ? "Загружаю обновление…" : s === "error" ? "Не удалось проверить (нет интернета?)" : "";
       return "<h3>" + IT.icon("refresh") + ' Обновления</h3><p class="sm">Версия <b>' + IT.esc(U.current) + "</b>" + (U.apkInstalled ? ' · сборка Android <span class="muted">' + IT.esc(U.apkInstalled) + "</span>" : "") + '</p><p class="sm upd-line">' + line + "</p>" +
         '<div class="row gap wrap mt-s">' + ((s === "web" || s === "apk") ? '<button class="btn primary sm" data-upd-now>' + IT.icon("refresh") + " Обновить</button>" : '<button class="btn ghost sm" data-upd-check>Проверить обновления</button>') + "</div>" +
-        '<p class="xs muted mt-s">' + (native() ? "Приложение само проверяет обновления при запуске. Обычно обновление ставится за несколько секунд без переустановки." : "Сайт обновляется сам; если вышла новая версия, появится уведомление.") + "</p>";
+        '<p class="xs muted mt-s">' + (native() ? 'Приложение само проверяет обновления при запуске. Обычно обновление ставится за несколько секунд без переустановки. Если не получается — <button class="link" data-upd-apk>скачайте установочный файл</button>: он встанет поверх, прогресс сохранится.' : "Сайт обновляется сам; если вышла новая версия, появится уведомление.") + "</p>";
     },
 
     init: function () {
@@ -128,6 +143,7 @@
       setInterval(function () { if (!document.hidden) U.check(false); }, 6 * 3600 * 1000);
       if (P().App && P().App.addListener) P().App.addListener("resume", function () { if (Date.now() - (U._last || 0) > 3600e3) { U._last = Date.now(); U.check(false); } });
       if (IT.store) IT.store.on(function (ev) { if (ev === "update") { var el = IT.$(".upd-card"); if (el) el.innerHTML = U.card(); } });
+      document.addEventListener("click", function (e) { if (e.target.closest && e.target.closest(".upd-card [data-upd-apk]")) U.installApk(); });
     },
   };
   IT.update = U;

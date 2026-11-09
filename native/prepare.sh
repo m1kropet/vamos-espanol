@@ -55,17 +55,7 @@ android {
 }
 GRADLE
 
-# Совместимость с Capacitor 6 (compileSdk 34): фиксируем версию WorkManager, которую тянет плагин обновлений
-grep -q "androidx.work:work-runtime" "$GR" || cat >> "$GR" <<'GRADLE'
-
-configurations.all {
-    resolutionStrategy {
-        force 'androidx.work:work-runtime:2.9.1'
-        force 'androidx.work:work-runtime-ktx:2.9.1'
-    }
-}
-GRADLE
-# плагин обновлений требует Android 6.0+ (minSdk 23)
+# Android 6.0+ (minSdk 23)
 sed -i -E 's/minSdkVersion = [0-9]+/minSdkVersion = 23/' android/variables.gradle
 grep -n "minSdkVersion" android/variables.gradle
 
