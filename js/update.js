@@ -119,8 +119,10 @@
     installApk: function (m) {
       var url = REL + "Vamos.apk?v=" + encodeURIComponent((U.remote && U.remote.apk) || Date.now());
       if (m && m.close) m.close();
-      IT.modal('<h3 class="m-title">Установка новой версии</h3><ol class="sm upd-steps"><li>Сейчас начнётся загрузка файла <b>Vamos.apk</b> (~5 МБ).</li><li>Когда загрузка закончится, нажмите на уведомление <b>«Vamos.apk»</b> (или откройте его в «Загрузках»).</li><li>Нажмите <b>«Обновить»</b>. Прогресс и настройки сохранятся.</li></ol><p class="xs muted">Если Android спросит разрешение на установку из этого источника — разрешите один раз.</p><p class="xs muted">Если Android пишет «Приложение не установлено», у вас стоит самая первая сборка со старой подписью: войдите через Google (Профиль), удалите приложение и установите файл заново — прогресс вернётся после входа.</p><div class="row gap end mt"><button class="btn primary" data-close>Понятно</button></div>');
-      if (P().Browser && P().Browser.open) P().Browser.open({ url: url });
+      IT.modal('<h3 class="m-title">Установка новой версии</h3><ol class="sm upd-steps"><li>Откроется браузер, и начнётся загрузка файла <b>Vamos.apk</b> (~7 МБ).</li><li>Когда загрузка закончится, нажмите на уведомление <b>«Vamos.apk»</b> (или откройте его в «Загрузках»).</li><li>Нажмите <b>«Обновить»</b>. Прогресс и настройки сохранятся.</li></ol><p class="xs muted">Если Android спросит разрешение на установку из этого источника — разрешите один раз.</p><p class="xs muted">Если Android пишет «Приложение не установлено», у вас стоит самая первая сборка со старой подписью: войдите через Google (Профиль), удалите приложение и установите файл заново — прогресс вернётся после входа.</p><div class="row gap end mt"><button class="btn primary" data-close>Понятно</button></div>');
+      // Файл качаем во внешнем браузере (Chrome/Opera), а не во встроенной вкладке:
+      // на некоторых телефонах (Xiaomi и др.) встроенная вкладка «зависает» на 100% загрузки.
+      if (native()) location.href = url; // Capacitor откроет внешнюю ссылку в браузере по умолчанию
       else window.open(url, "_blank");
     },
 
