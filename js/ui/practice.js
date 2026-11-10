@@ -79,9 +79,21 @@
     var o = IT.openOverlay('<div class="player review"><header class="pl-top"><button class="icon-btn" data-x>' + IT.icon("close") + '</button><div class="pl-bar"><i></i></div><div class="seg sm" data-mode><button data-m="cards" class="' + (mode === "cards" ? "on" : "") + '">' + t("modeCards") + '</button><button data-m="type" class="' + (mode === "type" ? "on" : "") + '">' + t("modeType") + '</button></div></header><div class="pl-body"><div class="rv"></div></div><footer class="pl-foot rv-foot"></footer></div>');
     var box = o.querySelector(".rv"), foot = o.querySelector(".rv-foot");
     o.querySelector("[data-x]").onclick = function () { S.save(); IT.closeOverlay(); };
-    o.querySelector("[data-mode]").onclick = function (e) { var b = e.target.closest("[data-m]"); if (!b) return; mode = st.reviewMode = b.getAttribute("data-m"); o.querySelectorAll("[data-m]").forEach(function (x) { x.classList.toggle("on", x === b); }); draw(); };
-    function gradeBtns(sugg) {
-      return [[0, t("gAgain"), "g0"], [1, t("gHard"), "g1"], [2, t("gGood"), "g2"], [3, t("gEasy"), "g3"]].map(function (g) {
+    // Анти-списывание: слова, ответ на которые уже был виден в этой сессии (карточка, подсказка),
+    // в режиме «Ввод» не могут получить оценку выше «Трудно». Смена режима действует со следующей карточки.
+    var now = Date.now(), seen = IT._rvSeen = IT._rvSeen || {}, answered = false, pendingMode = null;
+    Object.keys(seen).forEach(function (k) { if (now - seen[k] > 30 * 60000) delete seen[k]; }); // помним «подсмотренное» 30 минут, даже если закрыть и открыть заново
+    o.querySelector("[data-mode]").onclick = function (e) {
+      var b = e.target.closest("[data-m]"); if (!b) return;
+      var m = b.getAttribute("data-m"); st.reviewMode = m;
+      o.querySelectorAll("[data-m]").forEach(function (x) { x.classList.toggle("on", x === b); });
+      if (m === mode) { pendingMode = null; return; }
+      if (answered || i >= keys.length) { mode = m; pendingMode = null; return; }
+      pendingMode = m; IT.toast(t("modeNext"));
+    };
+    function gradeBtns(sugg, max) {
+      if (max == null) max = 3;
+      return [[0, t("gAgain"), "g0"], [1, t("gHard"), "g1"], [2, t("gGood"), "g2"], [3, t("gEasy"), "g3"]].filter(function (g) { return g[0] <= max; }).map(function (g) {
         return '<button class="btn grade ' + g[2] + (sugg === g[0] ? " sugg" : "") + '" data-g="' + g[0] + '"><b>' + g[1] + "</b><small>" + preview(keys[i], g[0]) + "</small></button>";
       }).join("");
     }
@@ -91,31 +103,37 @@
     function draw() {
       o.querySelector(".pl-bar i").style.width = Math.round(i / keys.length * 100) + "%";
       if (i >= keys.length) return end();
-      var w = IT.wordInfo(keys[i]); flipped = false;
+      if (pendingMode) { mode = pendingMode; pendingMode = null; }
+      var w = IT.wordInfo(keys[i]); flipped = false; answered = false;
       if (mode === "cards") {
         box.innerHTML = '<div class="flash"><div class="flash-front">' + IT.sp(w.it, "big") + '<div class="rv-it">' + esc(w.it) + "</div></div><div class=\"flash-slot\"></div></div>";
         foot.innerHTML = '<button class="btn primary big" data-flip>' + t("showAnswer") + "</button>";
         foot.querySelector("[data-flip]").onclick = flip;
+        seen[keys[i]] = Date.now();
         if (st.profile.autoplay) IT.audio.speak(w.it);
       } else {
         box.innerHTML = '<div class="flash"><div class="flash-front"><div class="muted sm">' + t("typeInSpanish") + '</div><div class="rv-it">' + esc(w.ru) + '</div></div><input class="ans-input" placeholder="' + t("typeItalian") + '" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="flash-slot"></div></div>';
         foot.innerHTML = '<button class="btn primary big" data-chk>' + t("check") + "</button>";
         var inp = box.querySelector("input"); setTimeout(function () { inp.focus(); }, 50);
         var go = function () {
+          if (answered) return; answered = true;
           var ans = [w.it, IT.bare(w.it)], r = IT.check(inp.value, ans);
+          var peeked = !!seen[keys[i]]; seen[keys[i]] = Date.now();
+          // потолок оценки определяется результатом ввода, а не самооценкой
+          var max = !r.ok ? 0 : peeked ? 1 : r.kind === "exact" ? 3 : 1;
           inp.disabled = true; inp.classList.add(r.ok ? "right" : "wrong");
-          var sugg = r.ok ? (r.kind === "exact" ? 2 : 1) : 0;
+          var sugg = Math.min(max, r.ok ? (r.kind === "exact" ? 2 : 1) : 0);
           box.querySelector(".flash-slot").innerHTML = (r.ok ? "" : '<div class="fb-ans"><span class="lbl">' + t("fbCorrect") + '</span><span class="ans-txt">' + esc(w.it) + "</span> " + IT.sp(w.it) + "</div>") + back(w);
           IT.audio.speak(w.it); IT.audio.sfx(r.ok ? "ok" : "bad");
-          foot.innerHTML = '<div class="grades">' + gradeBtns(sugg) + "</div>";
-          bindGrades(r.ok);
+          foot.innerHTML = (peeked && r.ok ? '<div class="muted sm center rv-note">' + t("peekNote") + "</div>" : "") + '<div class="grades">' + gradeBtns(sugg, max) + "</div>";
+          bindGrades(r.ok && !peeked);
         };
         foot.querySelector("[data-chk]").onclick = go;
         inp.onkeydown = function (e) { if (e.key === "Enter" && inp.value.trim()) go(); };
       }
     }
     function flip() {
-      if (flipped) return; flipped = true;
+      if (flipped) return; flipped = true; answered = true;
       var w = IT.wordInfo(keys[i]);
       box.querySelector(".flash-slot").innerHTML = back(w);
       box.querySelector(".flash").classList.add("flipped");
