@@ -64,13 +64,74 @@
   function wordPool(pos) {
     return Object.keys(IT.vocab).map(function (k) { return IT.vocab[k]; }).filter(function (w) { return !pos || w.pos === pos; });
   }
-  function distractWords(word, field, n, lesson) {
-    var pool = (lesson ? lesson.words : []).filter(function (w) { return w.key !== word.key; });
-    var same = wordPool(word.pos).filter(function (w) { return w.key !== word.key; });
-    var cands = uniq(shuffle(pool).concat(shuffle(same)).map(function (w) { return w[field]; })
-      .filter(function (v) { return IT.norm(v) !== IT.norm(word[field]); }));
-    return cands.slice(0, n);
+  /* Похожие слова: отвлекающие варианты подбираются по сходству испанского написания
+   * (bueno → bonito, nuevo, buena…), чтобы ответ нельзя было угадать «по внешнему виду». */
+  function simKey(s) { return IT.stripAcc(IT.norm(IT.bare(String(s || "")))); }
+  function prefixLen(a, b) { var i = 0; while (i < a.length && i < b.length && a[i] === b[i]) i++; return i; }
+  function simScore(a, b) {
+    var d = lev(a, b), m = Math.max(a.length, b.length) || 1;
+    var sc = d / m - Math.min(prefixLen(a, b), 4) * 0.08;
+    if (a.slice(-1) === b.slice(-1)) sc -= 0.05;
+    if (a.charAt(0) === b.charAt(0)) sc -= 0.05;
+    return sc;
   }
+  IT.simScore = function (a, b) { return simScore(simKey(a), simKey(b)); };
+  // Классические смысловые путаницы: идут первыми, если слова есть в словаре
+  var CONFUSE = [["bueno", "bonito", "bien", "mal"], ["ser", "estar", "hay", "haber", "tener"], ["pero", "perro", "caro"], ["saber", "conocer"], ["pedir", "preguntar"], ["llevar", "traer", "ir", "venir"], ["mucho", "muy"], ["por", "para"], ["también", "tampoco"], ["hacer", "poner"], ["calor", "caliente", "frío"], ["tiempo", "hora", "vez"], ["pequeño", "poco"], ["nuevo", "joven"], ["viejo", "mayor"], ["pescado", "pez"]];
+  var confIdx = null;
+  function confusers(key) {
+    if (!confIdx) { confIdx = {}; CONFUSE.forEach(function (g) { g.forEach(function (k) { confIdx[k] = g; }); }); }
+    return confIdx[key] || [];
+  }
+  function lookalikes(word, limit) {
+    var key = simKey(word.it), ru = IT.norm(word.ru), multi = /\s/.test(IT.bare(word.it)), conf = confusers(IT.stripAcc(IT.norm(IT.bare(word.it))));
+    var hasArt = IT.bare(word.it) !== word.it;
+    return wordPool().filter(function (w) {
+      if (w.key === word.key) return false;
+      var k = simKey(w.it);
+      if (!k || k === key || IT.norm(w.ru) === ru) return false;     // не берём синонимы и тот же перевод
+      if (k.length <= 2 && key.length > 3) return false;
+      return /\s/.test(IT.bare(w.it)) === multi;                     // слово к слову, фраза к фразе
+    }).map(function (w) {
+      var sc = simScore(key, simKey(w.it));
+      if (w.pos !== word.pos && !(String(w.pos).charAt(0) === "n" && String(word.pos).charAt(0) === "n")) sc += 0.35;
+      if ((IT.bare(w.it) !== w.it) !== hasArt) sc += 0.2;
+      if (conf.map(IT.stripAcc).indexOf(IT.stripAcc(IT.norm(IT.bare(w.it)))) >= 0) sc -= 1;
+      return { w: w, sc: sc };
+    }).sort(function (a, b) { return a.sc - b.sc; }).slice(0, limit || 8).map(function (x) { return x.w; });
+  }
+  IT.lookalikes = lookalikes;
+  function distractWords(word, field, n, lesson) {
+    var top = lookalikes(word, 7), out = [], seen = {};
+    seen[IT.norm(word[field])] = 1;
+    function add(v) { var k = IT.norm(v); if (!v || seen[k] || out.length >= n) return; seen[k] = 1; out.push(v); }
+    // самый похожий — почти всегда, остальные — случайно из ближайших, чтобы попытки отличались
+    if (top[0] && Math.random() < 0.85) add(top[0][field]);
+    shuffle(top.slice(0, 6)).forEach(function (w) { add(w[field]); });
+    var pool = (lesson ? lesson.words : []).filter(function (w) { return w.key !== word.key && IT.norm(w.ru) !== IT.norm(word.ru); });
+    shuffle(pool).concat(shuffle(wordPool(word.pos))).forEach(function (w) { if (w.key !== word.key) add(w[field]); });
+    return out;
+  }
+  /* Ошибочные написания: b/v, ll/y, c/z/s, h, ñ, r/rr, ударения */
+  var SWAPS = [[/v/, "b"], [/b/, "v"], [/ll/, "y"], [/y(?=[aeiou])/, "ll"], [/z/, "s"], [/c(?=[ei])/, "s"], [/s/, "z"], [/qu/, "c"], [/c(?=[aou])/, "k"], [/^h/, ""], [/^([aeiou])/, "h$1"], [/ñ/, "n"], [/ni(?=[aeiou])/, "ñ"], [/rr/, "r"], [/([aeiou])r([aeiou])/, "$1rr$2"], [/g(?=[ei])/, "j"], [/j(?=[ei])/, "g"], [/x/, "j"], [/([aeiou])\1/, "$1"]];
+  var ACC = { a: "á", e: "é", i: "í", o: "ó", u: "ú" };
+  function misspell(word) {
+    var full = word.it, m = full.match(/^((?:el|la|los|las|un|una|unos|unas)\s+)?(.*)$/i), art = m[1] || "", w = m[2];
+    var out = [], real = {};
+    wordPool().forEach(function (x) { real[IT.norm(x.it)] = 1; });
+    function add(v) { if (v && v !== w && !real[IT.norm(art + v)] && out.indexOf(art + v) < 0) out.push(art + v); }
+    SWAPS.forEach(function (sw) { if (sw[0].test(w)) add(w.replace(sw[0], sw[1])); });
+    if (/[áéíóú]/.test(w)) {
+      add(IT.stripAcc(w));
+      var bare = IT.stripAcc(w), vs = []; bare.replace(/[aeiou]/g, function (c, i) { vs.push(i); });
+      vs.forEach(function (i) { var c = bare.charAt(i), v = bare.slice(0, i) + ACC[c] + bare.slice(i + 1); if (v !== w) add(v); });
+    } else {
+      var vs2 = []; w.replace(/[aeiou]/g, function (c, i) { vs2.push(i); });
+      sample(vs2, 2).forEach(function (i) { add(w.slice(0, i) + ACC[w.charAt(i)] + w.slice(i + 1)); });
+    }
+    return shuffle(out);
+  }
+  IT.misspell = misspell;
   function wordWhy(w) {
     var parts = ["«" + w.it + "» — " + w.ru + "."];
     var g = w.gender === "m" ? "мужской род" : w.gender === "f" ? "женский род" : "";
@@ -117,6 +178,15 @@
       var opts = uniq([ex.ru].concat(shuffle(others).map(function (o) { return o.ru; }))).slice(0, 3);
       return { type: "trchoice", prompt: ex.it, audio: ex.it, options: shuffle(opts), answer: ex.ru, gloss: ex.gloss, note: ex.note, tags: (lesson && lesson.tags) || [] };
     },
+    /* «Как правильно пишется?» — правильное слово среди ошибочных написаний и похожего слова */
+    spell: function (w, lesson) {
+      var wrong = misspell(w).slice(0, 2), look = lookalikes(w, 3).map(function (x) { return x.it; });
+      var opts = [w.it].concat(wrong);
+      look.forEach(function (v) { if (opts.length < 4 && opts.map(IT.norm).indexOf(IT.norm(v)) < 0) opts.push(v); });
+      misspell(w).slice(2).forEach(function (v) { if (opts.length < 4 && opts.indexOf(v) < 0) opts.push(v); });
+      if (opts.length < 3) return MK.pick(w, lesson, "ru-it");
+      return { type: "pick", dir: "ru-it", spell: true, prompt: w.ru, options: shuffle(opts), answer: w.it, words: [w.key], why: wordWhy(w), ex: w.ex, tags: (lesson && lesson.tags) || ["lessico"] };
+    },
     type: function (w, lesson) {
       var ans = [w.it]; var b = IT.bare(w.it); if (b !== w.it) ans.push(b);
       return { type: "type", prompt: w.ru, answers: ans, words: [w.key], why: wordWhy(w), audio: w.it, hint: w.it.charAt(0) + "…", tags: (lesson && lesson.tags) || ["lessico"] };
@@ -153,56 +223,91 @@
   function shortEx(list, max) { return list.filter(function (e) { return e.it.split(" ").length <= (max || 8); }); }
   function stage(items, name) { items.forEach(function (it) { if (it) it.stage = name; }); return items.filter(Boolean); }
 
-  IT.buildLesson = function (lesson) {
+  /* Сборка урока. Каждая попытка отличается: случайные слова и примеры, случайный тип задания
+   * для каждого из них, случайная часть авторских вопросов. То, что было в прошлой попытке,
+   * уходит в конец очереди, поэтому при повторе ученик видит в основном новые задания. */
+  function sigOf(it) { return it.type + "|" + (it.q || it.prompt || it.audio || (it.pairs && it.pairs.map(function (p) { return p[0]; }).join(",")) || ""); }
+  function fresh(list, sigFn, last) {
+    var a = shuffle(list), seen = a.filter(function (x) { return last[sigFn(x)]; }), nw = a.filter(function (x) { return !last[sigFn(x)]; });
+    return nw.concat(seen);
+  }
+  function pickType(weights) {
+    var tot = 0, k; for (k in weights) tot += weights[k];
+    var r = Math.random() * tot; for (k in weights) { r -= weights[k]; if (r < 0) return k; }
+    return k;
+  }
+  IT.buildLesson = function (lesson, preview) {
     var L = lesson, items = [], ex = L.examples, words = L.words;
+    var hist = S.state.lessonHist = S.state.lessonHist || {}, last = {};
+    (hist[L.id] || []).forEach(function (k) { last[k] = 1; });
     var allEx = IT.allLessons.reduce(function (acc, l) { return acc.concat(l.examples); }, []);
     var otherEx = function (e) { var own = ex.filter(function (o) { return o !== e; }); return own.length >= 3 ? own : own.concat(sample(allEx.filter(function (o) { return o !== e; }), 4)); };
-    var exS = shuffle(ex), wS = shuffle(words);
+    var wKey = function (w) { return "w|" + w.key; }, eKey = function (e) { return "e|" + e.it; };
+    var wS = fresh(words, wKey, last), exS = fresh(ex, eKey, last);
     var customs = (L.q || []).map(function (q) { return MK.custom(q, L); }).filter(Boolean);
-    var cf = shuffle(customs.filter(function (c) { return c.type === "choice" && !c.situation || c.type === "fill"; }));
-    var life = customs.filter(function (c) { return c.type === "dlg" || c.situation; });
-    var fixes = customs.filter(function (c) { return c.type === "fix"; });
-    var reserved = cf.length > 4 ? cf.splice(cf.length - 2, 2) : [];
+    var cf = fresh(customs.filter(function (c) { return c.type === "choice" && !c.situation || c.type === "fill"; }), sigOf, last);
+    var life = fresh(customs.filter(function (c) { return c.type === "dlg" || c.situation; }), sigOf, last);
+    var fixes = fresh(customs.filter(function (c) { return c.type === "fix"; }), sigOf, last);
+    var used = [];
 
-    // 1. Разминка
-    var warm = [];
-    if (wS.length >= 4) warm.push(MK.match(wS.slice(0, Math.min(5, wS.length)), L));
-    if (wS[5]) warm.push(MK.pick(wS[5], L, "it-ru")); else if (wS[0]) warm.push(MK.pick(wS[0], L, "it-ru"));
-    if (exS[0]) warm.push(MK.listen(exS[0], L, otherEx(exS[0])));
+    // 1. Разминка: сопоставление случайных слов или пара быстрых вопросов + слушание
+    var warm = [], wi = 0;
+    if (wS.length >= 4 && Math.random() < 0.75) {
+      var mn = Math.min(wS.length, 4 + Math.floor(Math.random() * 2));
+      warm.push(MK.match(shuffle(wS.slice(0, mn)), L)); wi = mn;
+    }
+    var exI = 0;
+    var exTask = function (e, kind) {
+      used.push(eKey(e));
+      var o = otherEx(e), short = e.it.split(" ").length <= 8;
+      if (kind === "listen") return MK.listen(e, L, o);
+      if (kind === "build") return short ? MK.build(e, L, o) : MK.trchoice(e, L, o);
+      if (kind === "trchoice") return MK.trchoice(e, L, o);
+      if (kind === "dictation") return e.it.split(" ").length <= 6 ? MK.dictation(e, L) : MK.listen(e, L, o);
+      return MK.trans(e, L);
+    };
+    if (exS[exI]) warm.push(exTask(exS[exI++], pickType({ listen: 3, trchoice: 2 })));
     items = items.concat(stage(warm, "warm"));
 
-    // 2. Практика: грамматика + конструирование
-    var prac = cf.slice();
-    var sh = shortEx(exS.slice(1));
-    if (sh[0]) prac.splice(1, 0, MK.build(sh[0], L, otherEx(sh[0])));
-    if (sh[1]) prac.splice(3, 0, MK.build(sh[1], L, otherEx(sh[1])));
-    if (exS[2]) prac.push(MK.trchoice(exS[2], L, otherEx(exS[2])));
-    if (wS[6] || wS[1]) prac.splice(2, 0, MK.type(wS[6] || wS[1], L));
-    if (wS[7] || wS[2]) prac.push(MK.pick(wS[7] || wS[2], L, "ru-it"));
+    // 2. Практика: авторские вопросы (случайная часть) + слова и примеры со случайным типом задания
+    var nCf = Math.min(cf.length, Math.max(3, Math.round(cf.length * (0.45 + Math.random() * 0.2))));
+    var prac = cf.slice(0, nCf), reserved = cf.slice(nCf, nCf + 1);
+    var wordTasks = [], spellDone = false, nW = Math.min(wS.length - wi, 3 + (Math.random() < 0.3 ? 1 : 0));
+    for (var k = 0; k < nW; k++) {
+      var w = wS[wi++]; if (!w) break; used.push(wKey(w));
+      var kind = !spellDone && k === nW - 1 ? "spell" : pickType({ pickIt: 3, pickRu: 2, spell: 3, type: 2 });
+      if (kind === "spell") spellDone = true;
+      wordTasks.push(kind === "pickIt" ? MK.pick(w, L, "ru-it") : kind === "pickRu" ? MK.pick(w, L, "it-ru") : kind === "spell" ? MK.spell(w, L) : MK.type(w, L));
+    }
+    var exTasks = [];
+    for (var j = 0; j < 2 && exS[exI]; j++) exTasks.push(exTask(exS[exI++], pickType({ build: 4, trchoice: 2, dictation: 1, listen: 1 })));
+    prac = shuffle(prac.concat(wordTasks, exTasks));
     items = items.concat(stage(prac, "practice"));
 
-    // 3. В жизни
-    items = items.concat(stage(life.slice(), "life"));
+    // 3. В жизни: диалоги и ситуации (до двух)
+    items = items.concat(stage(life.slice(0, 2), "life"));
 
     // 4. Повторение прошлого
     var rev = [], prev = prevLessons(L);
     if (prev.length) {
       var pl = sample(prev, 2);
       pl.forEach(function (p, i) {
-        if (i === 0 && p.examples.length) { var e = sample(shortEx(p.examples), 1)[0] || p.examples[0]; rev.push(MK.build(e, p, p.examples.filter(function (o) { return o !== e; }))); }
-        else if (p.words.length) rev.push(MK.pick(sample(p.words, 1)[0], p, Math.random() < .5 ? "it-ru" : "ru-it"));
+        if (i === 0 && p.examples.length) { var e = sample(shortEx(p.examples), 1)[0] || p.examples[0]; rev.push(Math.random() < 0.6 ? MK.build(e, p, p.examples.filter(function (o) { return o !== e; })) : MK.trchoice(e, p, p.examples.filter(function (o) { return o !== e; }))); }
+        else if (p.words.length) { var pw = sample(p.words, 1)[0]; var r = Math.random(); rev.push(r < 0.35 ? MK.spell(pw, p) : MK.pick(pw, p, r < 0.7 ? "ru-it" : "it-ru")); }
       });
-      var due = IT.srs.due().filter(function (k) { return IT.vocab[k] && IT.vocab[k].lesson !== L.id; }).slice(0, 2);
-      due.forEach(function (k) { var w = IT.vocab[k]; rev.push(MK.pick(w, IT.lessonById[w.lesson], "it-ru")); });
+      var due = IT.srs.due().filter(function (k) { return IT.vocab[k] && IT.vocab[k].lesson !== L.id; });
+      sample(due, 2).forEach(function (k) { var w = IT.vocab[k]; rev.push(MK.pick(w, IT.lessonById[w.lesson], Math.random() < 0.5 ? "it-ru" : "ru-it")); });
     }
     items = items.concat(stage(rev, "review"));
 
-    // 5. Проверка усвоения
-    var chk = [];
-    var trEx = shortEx(exS, 7).slice(-2);
-    trEx.forEach(function (e) { chk.push(MK.trans(e, L)); });
-    chk = chk.concat(fixes, reserved);
+    // 5. Проверка усвоения: перевод двух ещё не использованных (по возможности) примеров
+    var chk = [], rest = exS.slice(exI).concat(exS.slice(0, exI));
+    shortEx(rest, 7).slice(0, 2).forEach(function (e) { used.push(eKey(e)); chk.push(MK.trans(e, L)); });
+    chk = chk.concat(fixes.slice(0, 1), reserved);
     items = items.concat(stage(shuffle(chk), "check"));
+
+    // запоминаем, что было в этой попытке
+    if (!preview) hist[L.id] = used.concat(items.filter(function (it) { return it.type === "choice" || it.type === "fill" || it.type === "fix" || it.type === "dlg"; }).map(sigOf));
     return items;
   };
 

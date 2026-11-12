@@ -275,6 +275,7 @@
     if (item.type === "pick") {
       var w = Object.keys(IT.vocab).map(function (k) { return IT.vocab[k]; }).find(function (v) { return v.ru === chosen || v.it === chosen; });
       if (w) return t("fbThatMeans") + " «" + esc(item.dir === "it-ru" ? w.it : w.ru) + "».";
+      if (item.spell) return t("fbMisspelled");
     }
     return "";
   }
@@ -328,7 +329,7 @@
 
   var R = {
     pick: function (item, ready) {
-      var el = IT.h('<div><h2 class="ex-q">' + (item.dir === "it-ru" ? t("qPickRu") : t("qPickIt")) + '</h2><div class="prompt-word">' + (item.audio ? IT.sp(item.audio, "big") : "") + "<div><b>" + esc(item.prompt) + "</b>" + (item.sub ? '<div class="pron">[' + esc(item.sub) + "]</div>" : "") + "</div></div>" + optionsBlock(item.options, null, item.dir === "ru-it" ? "it-opts" : "") + "</div>");
+      var el = IT.h('<div><h2 class="ex-q">' + (item.spell ? t("qSpell") : item.dir === "it-ru" ? t("qPickRu") : t("qPickIt")) + '</h2><div class="prompt-word">' + (item.audio ? IT.sp(item.audio, "big") : "") + "<div><b>" + esc(item.prompt) + "</b>" + (item.sub ? '<div class="pron">[' + esc(item.sub) + "]</div>" : "") + "</div></div>" + optionsBlock(item.options, null, item.dir === "ru-it" ? "it-opts" : "") + "</div>");
       return makeChoice(el, item, item.options, ready, item.dir === "ru-it" ? "it-opts" : "");
     },
     choice: function (item, ready) {
