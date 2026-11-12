@@ -53,7 +53,7 @@
     return '<svg class="bunting" viewBox="0 0 600 ' + Math.ceil(w + 26) + '" preserveAspectRatio="none" aria-hidden="true">' + s + "</svg>";
   };
 
-  // Цвет юнита: каждый юнит — свой цвет, по кругу
+  // Цвет блока: каждый блок — свой цвет, по кругу
   IT.UNIT_COLORS = [["#2C64F5", "#1D47C2"], ["#17B26A", "#0F8A51"], ["#D93F9C", "#A82A76"], ["#FF7A1A", "#D35F06"], ["#12A9C4", "#0B8297"], ["#7B5CF5", "#5A3ED0"]];
   IT.unitColor = function (u) { var c = IT.UNIT_COLORS[(u.index || 0) % IT.UNIT_COLORS.length]; return "--uc:" + c[0] + ";--ucd:" + c[1]; };
 })(window.IT);

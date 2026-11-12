@@ -203,36 +203,46 @@
       IT.activeActivity = null;
       var st = S.state, acc = stats.tot ? Math.round(stats.ok / stats.tot * 100) : 100, perfect = stats.ok === stats.tot && stats.tot > 0;
       var secs = Math.round((Date.now() - stats.start) / 1000), xp = 0, extra = "", newWords = [];
+      var PASS = IT.PASS_PCT, lessonFailed = false;
       if (cfg.kind === "lesson") {
-        var l = cfg.lesson, rec = st.lessons[l.id] || {}, first = !rec.done;
-        xp = 10 + stats.ok + (perfect ? 10 : 0) + (first ? 5 : 0);
-        st.lessons[l.id] = { done: 1, best: Math.max(rec.best || 0, acc), count: (rec.count || 0) + 1, last: Date.now() };
-        l.words.forEach(function (w) { if (!st.words[w.key]) newWords.push(w); IT.srs.ensure(w.key, l.id); });
-        st.cnt.lessons++; IT.dayLog().les++; IT.questProgress("lesson", 1);
-        if (perfect) { st.cnt.perfect++; IT.questProgress("perfect", 1); }
+        // Урок засчитывается (и открывает следующий) только при точности от 80%.
+        // Пропуски «Не могу сейчас» считаются ошибками, повторы ошибок в точность не входят.
+        var l = cfg.lesson, rec = st.lessons[l.id] || {}, passedL = acc >= PASS, first = !rec.done && passedL;
+        lessonFailed = !passedL && !rec.done;
+        xp = passedL ? 10 + stats.ok + (perfect ? 10 : 0) + (first ? 5 : 0) : Math.ceil(stats.ok / 2);
+        st.lessons[l.id] = { done: rec.done || passedL ? 1 : 0, best: Math.max(rec.best || 0, acc), count: (rec.count || 0) + 1, last: Date.now() };
+        if (passedL) {
+          l.words.forEach(function (w) { if (!st.words[w.key]) newWords.push(w); IT.srs.ensure(w.key, l.id); });
+          st.cnt.lessons++; IT.dayLog().les++; IT.questProgress("lesson", 1);
+          if (perfect) { st.cnt.perfect++; IT.questProgress("perfect", 1); }
+        }
         st.resume = null;
-        if (acc < 70) extra = '<p class="tip">' + IT.icon("bulb") + "<span>" + t("lowAccHint") + "</span></p>";
+        if (lessonFailed) extra = '<p class="tip">' + IT.icon("lock") + "<span>" + t("lessonFailed").replace("{p}", PASS).replace("{a}", acc) + "</span></p>";
+        else if (!passedL) extra = '<p class="tip">' + IT.icon("bulb") + "<span>" + t("lowAccHint").replace("{p}", PASS) + "</span></p>";
       } else if (cfg.kind === "test") {
-        var u = cfg.unit, passed = acc >= 75, tr = st.tests[u.id] || {};
+        var u = cfg.unit, passed = acc >= PASS, tr = st.tests[u.id] || {};
         st.tests[u.id] = { passed: tr.passed || passed, best: Math.max(tr.best || 0, acc) };
-        xp = 15 + stats.ok + (passed ? 30 : 0);
+        xp = passed ? 15 + stats.ok + 30 : Math.ceil(stats.ok / 2);
         if (passed) { st.unlocked = Math.max(st.unlocked, u.index + 1); st.cnt.tests++; }
-        extra = passed ? '<p class="tip ok">' + IT.icon("trophy") + "<span>" + t("testPassed") + "</span></p>" : '<p class="tip">' + IT.icon("bulb") + "<span>" + t("testFailed") + "</span></p>";
+        extra = passed ? '<p class="tip ok">' + IT.icon("trophy") + "<span>" + t("testPassed") + "</span></p>" : '<p class="tip">' + IT.icon("bulb") + "<span>" + t("testFailed").replace("{p}", PASS).replace("{a}", acc) + "</span></p>";
       } else {
         xp = stats.ok + (perfect && stats.tot >= 5 ? 5 : 0);
       }
       IT.addXp(xp, cfg.kind);
       var achs = IT.checkAch();
       S.save();
-      if (acc >= 80) { IT.confetti(); IT.audio.sfx("win"); }
-      var head = acc === 100 ? "¡Perfecto!" : acc >= 80 ? "¡Fantástico!" : acc >= 60 ? "¡Bien!" : "¡Ánimo!";
-      var html = '<div class="result"><div class="res-hero">' + IT.bunting(12) + IT.mascot(acc >= 60 ? "cheer" : "sad", 120) + '</div><h1>' + head + '</h1><p class="muted">' + esc(cfg.title || "") + "</p>" +
+      var failed = lessonFailed || (cfg.kind === "test" && acc < PASS);
+      if (acc >= PASS) { IT.confetti(); IT.audio.sfx("win"); }
+      var head = acc === 100 ? "¡Perfecto!" : acc >= 90 ? "¡Fantástico!" : acc >= PASS ? "¡Bien!" : "¡Casi!";
+      var html = '<div class="result"><div class="res-hero">' + IT.bunting(12) + IT.mascot(acc >= PASS ? "cheer" : "sad", 120) + '</div><h1>' + head + '</h1><p class="muted">' + esc(cfg.title || "") + "</p>" +
         '<div class="res-tiles"><div class="tile xp">' + IT.icon("bolt") + "<b>+" + xp + "</b><span>XP</span></div><div class=\"tile\">" + IT.icon("target") + "<b>" + acc + "%</b><span>" + t("accuracy") + '</span></div><div class="tile">' + IT.icon("clock") + "<b>" + fmtTime(secs) + "</b><span>" + t("time") + '</span></div><div class="tile">' + IT.icon("flame") + "<b>" + stats.max + "</b><span>" + t("bestCombo") + "</span></div></div>" + extra +
         (perfect && cfg.kind === "lesson" ? '<p class="chip gold">' + IT.icon("sparkles") + " " + t("perfectBonus") + "</p>" : "") +
         (newWords.length ? '<div class="res-sec"><h4>' + t("wordsAdded") + " (" + newWords.length + ')</h4><div class="chips">' + newWords.map(function (w) { return '<button class="chip soft" data-say="' + esc(w.it) + '">' + esc(w.it) + " — " + esc(w.ru) + "</button>"; }).join("") + "</div></div>" : "") +
         (stats.wrong.length ? '<div class="res-sec"><h4>' + t("reviewMistakes") + '</h4><div class="mist-list">' + stats.wrong.map(function (w) { return '<div class="mist"><div class="sm muted">' + esc(w.q) + "</div><div>" + (w.u ? '<s class="bad-t">' + esc(w.u) + "</s> → " : "") + "<b>" + esc(w.a) + "</b></div></div>"; }).join("") + "</div></div>" : "") +
         (achs.length ? '<div class="res-sec"><h4>' + t("newAch") + '</h4><div class="chips">' + achs.map(function (a) { return '<span class="chip gold">' + a.i + " " + esc(IT.tt(a)) + "</span>"; }).join("") + "</div></div>" : "") +
-        '<div class="row gap center wrap mt"><button class="btn ghost" data-again>' + IT.icon("refresh") + " " + t("again") + '</button><button class="btn primary big" data-done>' + t("continue") + " " + IT.icon("chevron") + "</button></div></div>";
+        (failed
+          ? '<div class="row gap center wrap mt"><button class="btn ghost" data-done>' + t("later") + '</button><button class="btn primary big" data-again>' + IT.icon("refresh") + " " + t("tryAgainLesson") + "</button></div></div>"
+          : '<div class="row gap center wrap mt"><button class="btn ghost" data-again>' + IT.icon("refresh") + " " + t("again") + '</button><button class="btn primary big" data-done>' + t("continue") + " " + IT.icon("chevron") + "</button></div></div>");
       o.querySelector(".pl-body").innerHTML = html;
       o.querySelector(".pl-foot").style.display = "none"; fb.className = "pl-fb";
       o.querySelector(".pl-bar i").style.width = "100%";
@@ -243,7 +253,7 @@
         else if (cfg.rebuild) IT.player.run(Object.assign({}, cfg, { items: cfg.rebuild(), idx: 0, stats: null }));
         else closeOverlay();
       };
-      document.onkeydown = function (e) { if (e.key === "Enter") o.querySelector("[data-done]").click(); };
+      document.onkeydown = function (e) { if (e.key === "Enter") o.querySelector(failed ? "[data-again]" : "[data-done]").click(); };
     }
     show();
   };

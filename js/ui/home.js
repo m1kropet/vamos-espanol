@@ -98,14 +98,14 @@
     });
     return h + "</div></div>";
   }
-  function stars(best) { var n = best >= 95 ? 3 : best >= 75 ? 2 : 1; return "★★★".slice(0, n) + '<span class="dim">' + "★★★".slice(n) + "</span>"; }
+  function stars(best) { var n = best >= 98 ? 3 : best >= 90 ? 2 : 1; return "★★★".slice(0, n) + '<span class="dim">' + "★★★".slice(n) + "</span>"; }
 
   function lessonSheet(l) {
     var open = IT.prog.lessonOpen(l), rec = S.state.lessons[l.id];
     var html = '<div class="sheet-head">' + IT.scene(l.unit.scene, "sheet-scene") + '</div><span class="eyebrow">' + t("lesson") + " " + (l.li + 1) + ", " + esc(l.unit.city) + '</span><h3 class="m-title">' + esc(IT.tt(l)) + '</h3><p class="muted">' + esc(l.goal) + "</p>" +
-      '<div class="row gap wrap sm mt-s"><span class="chip soft">' + IT.icon("book") + " " + l.th.length + " " + t("theoryParts") + '</span><span class="chip soft">' + IT.icon("pen") + " " + l.words.length + " " + t("newWords") + '</span><span class="chip soft">' + IT.icon("target") + " ~" + IT.buildLesson(l).length + " " + t("exercises") + "</span>" + (rec ? '<span class="chip ok">' + t("best") + ": " + rec.best + "%</span>" : "") + "</div>";
+      '<div class="row gap wrap sm mt-s"><span class="chip soft">' + IT.icon("book") + " " + l.th.length + " " + t("theoryParts") + '</span><span class="chip soft">' + IT.icon("pen") + " " + l.words.length + " " + t("newWords") + '</span><span class="chip soft">' + IT.icon("target") + " ~" + IT.buildLesson(l).length + " " + t("exercises") + "</span>" + (rec ? '<span class="chip ' + (rec.done ? "ok" : "soft") + '">' + t("best") + ": " + rec.best + "%</span>" : "") + "</div>" + (open && !(rec && rec.done) ? '<p class="muted sm mt-s">' + IT.icon("target") + " " + t("passNeed") + "</p>" : "");
     if (!open) html += '<p class="lock-note">' + IT.icon("lock") + " " + t("lockedLesson") + "</p>";
-    html += '<div class="row gap end mt wrap"><button class="btn ghost" data-theory>' + IT.icon("book") + " " + t("theory") + "</button>" + (open ? '<button class="btn primary" data-go-lesson>' + IT.icon("play") + " " + (rec ? t("repeat") : t("start")) + "</button>" : "") + "</div>";
+    html += '<div class="row gap end mt wrap"><button class="btn ghost" data-theory>' + IT.icon("book") + " " + t("theory") + "</button>" + (open ? '<button class="btn primary" data-go-lesson>' + IT.icon("play") + " " + (rec && rec.done ? t("repeat") : rec ? t("tryAgainLesson") : t("start")) + "</button>" : "") + "</div>";
     var m = IT.modal(html);
     m.querySelector("[data-theory]").onclick = function () { m.close(); IT.player.showTheory(l, true); };
     var g = m.querySelector("[data-go-lesson]"); if (g) g.onclick = function () { m.close(); IT.player.startLesson(l); };

@@ -11,6 +11,7 @@
   };
 
   /* ---------- Открытие уроков ---------- */
+  IT.PASS_PCT = 80; // минимальная точность, чтобы засчитать урок или контрольную
   IT.prog = {
     unitOpen: function (u) { return u.index <= st().unlocked; },
     lessonDone: function (id) { return !!(st().lessons[id] && st().lessons[id].done); },
@@ -150,7 +151,7 @@
     { id: "les5", i: "📚", t: "Прилежный ученик", ti: "Estudiante aplicado", d: "Пройдите 5 уроков", f: function () { return lessonsDone() >= 5; } },
     { id: "les15", i: "🎓", t: "Знаток грамматики", ti: "Experto en gramática", d: "Пройдите 15 уроков", f: function () { return lessonsDone() >= 15; } },
     { id: "a1", i: "🏛", t: "Уровень A1 пройден", ti: "Nivel A1 completado", d: "Завершите все уроки A1", f: function () { return IT.prog.levelPct("A1") >= 100; } },
-    { id: "test1", i: "🛡", t: "Проверка пройдена", ti: "Examen aprobado", d: "Сдайте первую контрольную юнита", f: function () { return st().cnt.tests >= 1; } },
+    { id: "test1", i: "🛡", t: "Проверка пройдена", ti: "Examen aprobado", d: "Сдайте первую контрольную блока", f: function () { return st().cnt.tests >= 1; } },
     { id: "str3", i: "🔥", t: "Разогрев", ti: "Calentamiento", d: "Серия 3 дня", f: function () { return st().streak.best >= 3; } },
     { id: "str7", i: "🌋", t: "Неделя без перерыва", ti: "Una semana seguida", d: "Серия 7 дней", f: function () { return st().streak.best >= 7; } },
     { id: "str30", i: "☀️", t: "Испанское лето", ti: "Verano español", d: "Серия 30 дней", f: function () { return st().streak.best >= 30; } },

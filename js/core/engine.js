@@ -206,7 +206,7 @@
     return items;
   };
 
-  /* Контрольная юнита: только серьёзные задания, порог 75% */
+  /* Контрольная блока: только серьёзные задания, порог 75% */
   IT.buildUnitTest = function (unit) {
     var ls = unit.lessons, items = [];
     var allEx = [], customs = [];
