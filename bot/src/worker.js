@@ -259,7 +259,7 @@ async function chatTurn(env, T, u, text, fromVoice) {
   u.hist.push({ role: "assistant", content: rep.es + (rep.ru ? "\n---\n" + rep.ru : "") });
   u.stats.chat++;
   addResult(u, true, 3);
-  const audio = await speak(env, rep.es, u.variant);
+  const audio = await speak(env, rep.es, u.variant, "chat");
   if (audio) await T.voice(u.chat, audio, "🗣 " + esc(rep.es).slice(0, 900));
   else await T.send(u.chat, "🗣 <b>" + esc(rep.es) + "</b>");
   if (rep.ru) await T.send(u.chat, esc(rep.ru), { reply_markup: kb([[["🔚 Закончить разговор", "chatend"], ["🔄 Другая тема", "topics"]]]) });
@@ -274,7 +274,7 @@ async function startChat(env, T, u, topic) {
   const op = opener(u);
   u.hist = [{ role: "user", content: "(начало разговора)" }, { role: "assistant", content: op }];
   await T.send(u.chat, "💬 <b>Разговор: " + (TOPIC_NAMES[u.topic] || "") + "</b>\nОтвечай по-испански голосом 🎤 или текстом. Я отвечу как носитель, озвучу ответ и покажу исправления. Можно писать и по-русски — подскажу, как сказать.", { reply_markup: MENU });
-  const audio = await speak(env, op, u.variant);
+  const audio = await speak(env, op, u.variant, "chat");
   if (audio) await T.voice(u.chat, audio, "🗣 " + esc(op));
   else await T.send(u.chat, "🗣 <b>" + esc(op) + "</b>");
 }

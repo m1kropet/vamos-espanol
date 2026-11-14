@@ -64,22 +64,58 @@ export function audioKind(b) {
   return { ext: "mp3", mime: "audio/mpeg", voice: true };
 }
 
-// Испанская озвучка: Deepgram Aura‑2 (естественные испанские голоса), запасной вариант — MeloTTS.
-const VOICES = { esp: "alvaro", lat: "celeste" };
-export async function speak(env, text, variant = "esp") {
-  const clean = String(text).replace(/<[^>]+>/g, "").trim().slice(0, 600);
+// Испанская озвучка: Deepgram Aura‑2.
+// Для варианта «Испания» используются только голоса с кастильским (peninsular) акцентом —
+// никаких латиноамериканских голосов по умолчанию (у модели на Cloudflare по умолчанию aquila, он латиноамериканский).
+// Álvaro — спокойный и чёткий (слова, упражнения), Néstor — разговорный (собеседник в чате).
+export const VOICES = {
+  esp: { words: ["alvaro", "nestor", "diana", "carina"], chat: ["nestor", "alvaro", "carina", "diana"] },
+  lat: { words: ["celeste", "javier", "selena"], chat: ["javier", "celeste", "estrella"] },
+};
+
+// Подготовка текста: модель строит интонацию по пунктуации, поэтому
+// убираем всё неиспанское (эмодзи, кириллицу, разметку), добавляем ¿ ¡ и финальную точку.
+export function prepText(text) {
+  let t = String(text || "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\.{3,}/g, "…") // многоточие — пауза (режим «по словам»)
+    .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, " ")
+    .replace(/\([^)]*[А-Яа-яЁё][^)]*\)/g, " ")
+    .replace(/[А-Яа-яЁё][^.!?¿¡\n]*/g, " ")
+    .replace(/[*_#`~|>]/g, " ")
+    .replace(/\s*\n+\s*/g, ". ")
+    .replace(/\s+/g, " ")
+    .replace(/\s+([,.!?;:])/g, "$1")
+    .replace(/([.!?])\.+/g, "$1")
+    .replace(/^[\s.…]+/, "")
+    .trim();
+  if (!t) return "";
+  // ¿…? и ¡…! — добавляем открывающие знаки, если их забыли
+  t = t.replace(/(^|[.!?…]\s+)([^¿¡.!?…]+?)([?!])/g, function (m, pre, body, end) {
+    const open = end === "?" ? "¿" : "¡";
+    return body.indexOf(open) >= 0 ? m : pre + open + body.trim() + end;
+  });
+  if (!/[.!?…]$/.test(t)) t += ".";
+  return t.slice(0, 600);
+}
+
+export async function speak(env, text, variant = "esp", style = "words") {
+  const clean = prepText(text);
   if (!clean) return null;
-  const tries = [
-    ["@cf/deepgram/aura-2-es", { text: clean, speaker: VOICES[variant] || "celeste", encoding: "mp3" }],
-    ["@cf/deepgram/aura-2-es", { text: clean }],
-    ["@cf/myshell-ai/melotts", { prompt: clean, lang: "es" }],
-  ];
+  const v = VOICES[variant === "lat" ? "lat" : "esp"];
+  const voices = v[style] || v.words;
+  const tries = [];
+  voices.forEach((speaker, i) => {
+    if (i === 0) tries.push(["@cf/deepgram/aura-2-es", { text: clean, speaker, encoding: "mp3", bit_rate: 128000 }]);
+    tries.push(["@cf/deepgram/aura-2-es", { text: clean, speaker, encoding: "mp3" }]);
+  });
+  tries.push(["@cf/myshell-ai/melotts", { prompt: clean, lang: "es" }]); // крайний случай: Aura недоступна
   for (const [model, input] of tries) {
     try {
       const b = await audioBytes(await env.AI.run(model, input));
-      if (b && b.length > 200) return { bytes: b, kind: audioKind(b), model };
+      if (b && b.length > 200) return { bytes: b, kind: audioKind(b), model, speaker: input.speaker };
     } catch (e) {
-      /* пробуем следующую модель */
+      /* пробуем следующий голос */
     }
   }
   return null;

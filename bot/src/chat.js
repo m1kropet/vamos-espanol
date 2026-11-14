@@ -14,7 +14,15 @@ export const TOPICS = {
 
 function system(user) {
   const lv = user.level === "A2" ? "A2 (простое прошедшее, будущее, бытовые темы)" : "A1 (простые фразы в настоящем времени, базовая лексика)";
-  const dial = user.variant === "lat" ? "латиноамериканский испанский (ustedes, без vosotros; лексика Мексики)" : "испанский Испании (vosotros, лексика Мадрида)";
+  const dial = user.variant === "lat"
+    ? "латиноамериканский испанский (ustedes, без vosotros; лексика Мексики)"
+    : [
+        "испанский Испании. Ты родился и всю жизнь живёшь в Мадриде и говоришь как обычный мадридец, а не как учебник:",
+        "vosotros; лексика Испании (móvil, ordenador, coche, zumo, patatas, conducir, coger el metro, vale, guay, mola, quedar, apetecer);",
+        "живые разговорные связки и реакции к месту, без перебора: vale, venga, pues, mira, oye, bueno, ¡anda!, ¡qué bien!, ¡qué guay!, ¿no?, ¿sabes?;",
+        "для того, что случилось сегодня, — pretérito perfecto (hoy he comido…), как говорят в Испании;",
+        "обращение на tú, как принято в Испании даже с незнакомыми людьми (врач и продавец тоже на tú, если ситуация не очень официальная)",
+      ].join(" ");
   return [
     "Ты — живой собеседник-носитель испанского языка в Telegram. Ученик говорит по-русски, уровень " + lv + ".",
     "Роль: " + (TOPICS[user.topic] || TOPICS.amigos),
@@ -23,6 +31,7 @@ function system(user) {
     "1) Первая часть: твоя реплика по-испански, 1–3 коротких предложения, лексика по уровню ученика, обязательно заканчивай вопросом, чтобы разговор продолжался. Только испанский, без перевода.",
     "2) Строка из трёх дефисов: ---",
     "3) Вторая часть по-русски: «Перевод: …» (перевод твоей реплики), затем, если в последнем сообщении ученика были ошибки, — «Исправления:» и для каждой: неправильно → правильно и короткое объяснение. Если ошибок нет — «Ошибок нет 👍». Если ученик написал по-русски — покажи, как это сказать по-испански.",
+    "Испанская часть будет озвучена синтезатором речи, поэтому пиши её так, как это произносят вслух: обязательно ставь ¿ ¡ и все ударения (á é í ó ú ñ), не используй эмодзи, скобки, сокращения и списки, небольшие числа пиши словами.",
     "Не используй Markdown-разметку (звёздочки, решётки). Будь дружелюбным и естественным, как человек, а не учебник.",
   ].join("\n");
 }
@@ -81,13 +90,20 @@ export async function chatReply(env, user, history) {
 }
 
 export function opener(user) {
-  const o = {
-    cafe: "¡Buenas tardes! Bienvenido a nuestro café. ¿Qué te pongo?",
-    amigos: "¡Hola! Soy Pablo, encantado. ¿Cómo te llamas y de dónde eres?",
+  const o = user.variant === "lat" ? {
+    cafe: "¡Buenas tardes! Bienvenido a nuestro café. ¿Qué le sirvo?",
+    amigos: "¡Hola! Soy Pablo, mucho gusto. ¿Cómo te llamas y de dónde eres?",
     viaje: "¡Hola! ¿En qué puedo ayudarte? ¿Qué ciudad quieres visitar?",
     tienda: "¡Hola! ¿Buscas algo en especial?",
-    medico: "Buenos días. Siéntate, por favor. ¿Qué te pasa?",
-    libre: "¡Hola! ¿Qué tal tu día? ¿De qué quieres hablar hoy?",
+    medico: "Buenos días. Siéntese, por favor. ¿Qué le pasa?",
+    libre: "¡Hola! ¿Qué tal tu día? ¿De qué quieres platicar hoy?",
+  } : {
+    cafe: "¡Hola, buenas! Bienvenido. ¿Qué te pongo?",
+    amigos: "¡Hola! Soy Pablo, encantado. ¿Cómo te llamas? ¿Y de dónde eres?",
+    viaje: "¡Hola, buenas! ¿En qué te puedo ayudar? ¿Qué ciudad te apetece visitar?",
+    tienda: "¡Hola! ¿Te puedo ayudar en algo o solo estás mirando?",
+    medico: "Buenos días. Siéntate, por favor. Cuéntame, ¿qué te pasa?",
+    libre: "¡Hola! ¿Qué tal el día? ¿De qué te apetece hablar?",
   };
   return o[user.topic] || o.amigos;
 }
